@@ -1,5 +1,5 @@
 import { C, F } from "@thegraid/common-lib";
-import { AliasLoader, RectShape, type CountClaz, type Paintable } from "@thegraid/easeljs-lib";
+import { AliasLoader, CircleShape, RectShape, type CountClaz, type Paintable } from "@thegraid/easeljs-lib";
 import { type DisplayObject } from "@thegraid/easeljs-module";
 import { Tile } from "@thegraid/hexlib";
 import { CardShape } from "./card-shape";
@@ -7,10 +7,8 @@ import { TileExporter } from "./tile-exporter";
 
 // some cards have multiple 'run' boxes! so we allow string | string[]
 type CARD = {
-  Aname: string, color: string, cost: string|number,
+  Aname: string, color: string,
 };
-type BoxKey = Extract<keyof CARD, 'now'|'active'|'run'>;
-type CARD_DESC = Required<Pick<CARD, BoxKey>>;
 
 function rgbaToName(v: Uint8ClampedArray, alpha?: number|string) {
     return `rgba(${v[0]},${v[1]},${v[2]},${alpha ?? (v[3]/255).toFixed(2)})`
@@ -32,36 +30,29 @@ export class WhistCard extends Tile  {
   }
   // four suits:
   static cards: CARD[] = [
-    {Aname: 'sword', cost: 5, color: 'white', },
-    {Aname: 'staff', cost: '9*', color: 'red', },
-    {Aname: 'stars', cost: 7, color: 'blue', },
-    {Aname: 'knives', cost: 5, color: 'purple', },
-];
+    {Aname: 'sword', color: 'white', },
+    {Aname: 'staff', color: 'purple', },
+    {Aname: 'stars', color: 'blue', },
+    {Aname: 'knives', color: 'red', },
+    {Aname: 'arrows', color: 'yellow', },
+  ];
+
+  /** color map: canonical name -> hmtl color code */
+  static cmap = {
+    red: 'rgba(254, 132, 140, 1)',
+    orange: 'orange',
+    yellow: 'rgba(251, 255, 137, 1)',
+    green: 'rgb(51,193,69)',
+    blue: 'rgba(164, 196, 255, 1)',
+    purple:'rgba(218, 164, 254, 1)',// '0x7e27bc',
+    brown: 'rgb(166, 128, 50)',
+    white: 'rgba(232, 232, 232, 1)',
+  } as Record<string, string>;
 
   /** main color of card: cmap[this.color] */
   get mcolor() {
-    return WhistCard.cmap[this.color] ?? '';
+    return WhistCard.cmap[this.color] ?? C.BLACK;
   }
-  get useAltColor() {
-    return (this.color == 'yellow') || (this.color == 'white');
-  }
-  /** text color on card, generally WHITE, but white & yellow cards use alternate color */
-  get tcolor() {
-    return (this.color == 'yellow') ? '#003300' : (this.color == 'white') ? 'DARKBLUE' : C.WHITE;
-  }
-
-  // todo: map from canonical names to print colors
-  /** color map: canonical name -> hmtl color code */
-  static cmap = {
-    red: 'rgba(227, 79, 79, 1)',
-    orange: 'orange',
-    yellow: 'yellow',
-    green: 'rgb(51,193,69)',
-    blue: 'rgba(139, 171, 229, 1)',
-    purple:'rgba(157, 97, 197, 1)',// '0x7e27bc',
-    brown: 'rgb(166, 128, 50)',
-    white: 'rgba(221, 220, 228, 1)',
-  } as Record<string, string>;
 
   static allCards(): CountClaz[] {
     return WhistCard.cards.map((card: CARD) => [1, WhistCard, card]);
@@ -72,16 +63,12 @@ export class WhistCard extends Tile  {
   x0 = 200; // align title, colored text/boxes
   color = 'white';
   cost = '2';
-  desc: CARD_DESC;
   image?: ImageBitmap;
   gridSpec = TileExporter.myGrid;
 
   constructor(desc: CARD) {
     super(desc.Aname); // cannot inject color directly
-    this.desc = { now: '', active: '', run: '', ...desc };
     this.color = desc.color;
-    this.cost = `${desc.cost}`;
-    this.baseShape.paint(this.mcolor);
     this.addComponents();
   }
 
@@ -108,8 +95,16 @@ export class WhistCard extends Tile  {
       bmImage.x += 0; // can fudge if you want to see the cropped bleed graphics
       this.addChild(bmImage);
     }
-
-    // this.reCache(); // do not reCache: extends bouds to whole bmImage!
+    const sWide = imgWide * .08
+    const sImage = AliasLoader.loader.getBitmap(this.Aname, sWide * 1.8);
+    if (sImage) {
+      const { x, y, width, height } = this.getBounds();
+      const dx = width * .09;
+      const circ = new CircleShape(C.WHITE, sWide, '');
+      circ.x = sImage.x = x + dx;
+      circ.y = sImage.y = y + dx;
+      this.addChild(circ, sImage);
+    }
     this.paint(this.color)
   }
 
