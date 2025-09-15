@@ -40,7 +40,7 @@ export class WhistCard extends Tile  {
 
   /** main color of card: cmap[this.color] */
   get mcolor() {
-    return WhistCard.cmap[this.color] ?? 'pink';
+    return WhistCard.cmap[this.color] ?? '';
   }
   get useAltColor() {
     return (this.color == 'yellow') || (this.color == 'white');
@@ -87,7 +87,7 @@ export class WhistCard extends Tile  {
 
   // WARN: invoked by constructor.super() BEFORE this.color is set
   override makeShape(): Paintable {
-    return new CardShape(this.mcolor, C.BLACK, this.radius, true, 30, 60);
+    return new CardShape(this.mcolor, this.mcolor, this.radius, true, 0, 60);
   }
 
   override makeBleed(bleed: number): DisplayObject {
