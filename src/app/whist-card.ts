@@ -3,7 +3,6 @@ import { AliasLoader, CenterText, NamedContainer, RectShape, RectWithDisp, type 
 import { Shape, Text, type Bitmap, type Container, type DisplayObject } from "@thegraid/easeljs-module";
 import { Tile } from "@thegraid/hexlib";
 import { CardShape } from "./card-shape";
-import { TextTweaks, type TWEAKS } from "./text-tweaks";
 import { TileExporter } from "./tile-exporter";
 
 // some cards have multiple 'run' boxes! so we allow string | string[]
@@ -29,14 +28,14 @@ export class WhistCard extends Tile  {
   static titleFont = `36px ${WhistCard.family} bold`;
   static textFont = F.fontSpec(36, `${WhistCard.family}`, 'condensed');
   static get fnames() {
-    return  ['knives', 'sword', 'stars', 'staff'];
+    return WhistCard.cards.flatMap(card => [card.Aname, `Ninja-${card.Aname}`]);
   }
-  // initial (...) provide alternate titleBox text
+  // four suits:
   static cards: CARD[] = [
-    {Aname: 'Ninja-sword', cost: 5, color: 'white', },
-    {Aname: 'Ninja-staff', cost: '9*', color: 'purple', },
-    {Aname: 'Ninja-stars', cost: 7, color: 'white', },
-    {Aname: 'Ninja-knives', cost: 5, color: 'red', },
+    {Aname: 'sword', cost: 5, color: 'white', },
+    {Aname: 'staff', cost: '9*', color: 'red', },
+    {Aname: 'stars', cost: 7, color: 'blue', },
+    {Aname: 'knives', cost: 5, color: 'purple', },
 ];
 
   /** main color of card: cmap[this.color] */
@@ -54,18 +53,18 @@ export class WhistCard extends Tile  {
   // todo: map from canonical names to print colors
   /** color map: canonical name -> hmtl color code */
   static cmap = {
-    red: 'rgb(178,60,20)',
+    red: 'rgba(227, 79, 79, 1)',
     orange: 'orange',
     yellow: 'yellow',
     green: 'rgb(51,193,69)',
-    blue: 'rgb(112, 153, 227)',
-    purple:'rgb(128,39,188)',// '0x7e27bc',
+    blue: 'rgba(139, 171, 229, 1)',
+    purple:'rgba(157, 97, 197, 1)',// '0x7e27bc',
     brown: 'rgb(166, 128, 50)',
-    white: 'rgb(198, 197, 205)',
+    white: 'rgba(221, 220, 228, 1)',
   } as Record<string, string>;
 
   static allCards(): CountClaz[] {
-    return WhistCard.cards.map((card: CARD) => [3, WhistCard, card]);
+    return WhistCard.cards.map((card: CARD) => [1, WhistCard, card]);
   }
 
   override get radius() { return 734 } // nextRadius
@@ -75,8 +74,7 @@ export class WhistCard extends Tile  {
   cost = '2';
   desc: CARD_DESC;
   image?: ImageBitmap;
-  gridSpec = TileExporter.euroPoker;
-  keys = ['now', 'active', 'run'] as BoxKey[];
+  gridSpec = TileExporter.myGrid;
 
   constructor(desc: CARD) {
     super(desc.Aname);
@@ -88,31 +86,21 @@ export class WhistCard extends Tile  {
 
   // invoked by constructor.super()
   override makeShape(): Paintable {
-    return new CardShape('lavender', this.color, this.radius, false, 0, 10);
+    return new CardShape('lavender', this.color, this.radius, true, 3, 10);
   }
 
-  // TODO: background, with grey rhombus pattern
-  // image scanned from card (includes dice faces!)
-  // Card Name (maybe two lines)
-  // Cost (in dual circles, 130px)
-  // [now], [active], [run]
   addComponents() {
     //
     const h = this.gridSpec.cardh!;
-    const bmImage = AliasLoader.loader.getBitmap(this.color, this.gridSpec.cardw!); // scaled to fit cardw
+    const cname = `Ninja-${this.Aname}`;
+    const imgWide = this.gridSpec.cardw! * .8;
+    const bmImage = AliasLoader.loader.getBitmap(cname, imgWide); // scaled to fit cardw
     const { x, y, height, width } = this.baseShape.getBounds();
     const x0 = this.x0 = x + width * .455; // where to position Graphics to right of image
     if (bmImage) {
       bmImage.x += 0; // can fudge if you want to see the cropped bleed graphics
       this.addChild(bmImage);
     }
-    // set card name:
-    const name = this.Aname;
-    const nlines = name.split('\n').length;
-    const mlh = new Text(name, WhistCard.nameFont).getMeasuredLineHeight();
-    const nlh = mlh + WhistCard.fontLead;
-    const y0 = 0 - h * .36; // center of coin
-    const dy = y0 - nlines * nlh / 2;
 
     // this.reCache(); // do not reCache: extends bouds to whole bmImage!
     this.paint(this.color)
