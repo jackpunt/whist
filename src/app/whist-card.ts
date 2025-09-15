@@ -71,7 +71,15 @@ export class WhistCard extends Tile  {
     super(desc.Aname); // cannot inject color directly
     this.color = desc.color;
     this.rank = rank;
+    this.replaceBaseShape();
     this.addComponents();
+  }
+
+  /** constructor makes Shape before color is set, redo it here: */
+  replaceBaseShape() {
+    this.removeChild(this.baseShape);
+    this.baseShape = this.makeShape();
+    this.addChildAt(this.baseShape, 0);
   }
 
   // WARN: invoked by constructor.super() BEFORE this.color is set
