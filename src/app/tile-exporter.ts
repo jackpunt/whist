@@ -17,14 +17,14 @@ export class TileExporter extends TileExporterLib {
     x0: 158 + 30 + 1040/2, y0: 320 + 30 + 734/2, delx: 1122.5, dely: 803, bleed: 30,
   }
 
-  /** for home printer 8x10 @ 300dpi = 2400 x 3000 */
+  /** for home printer 8x10 @ 300dpi = 2400 x 3000, no space between */
   static euroPoker2: GridSpec = {
     width: 2400, height: 3000, nrow: 4, ncol: 2, cardw: 1040, cardh: 734, double: false,
-    x0: 60 + 1040/2, y0: 25 + 734/2, delx: 1122.5, dely: 734, bleed: 0, bgColor: 'white',
+    x0: 60 + 1040/2, y0: 25 + 734/2, delx: 1122.5, dely: 734, bleed: 30, bgColor: 'white',
   }
   static fourUp: GridSpec = {
     width: 2400, height: 3000, nrow: 4, ncol: 2, cardh: 1040, cardw: 734, double: false,
-    y0: 60 + 1040/2, x0: 25 + 734/2, dely: 1122.5, delx: 814, bleed: 30, bgColor: 'white',
+    y0: 60 + 1040/2, x0: 85 + 734/2, dely: 1122.5, delx: 814, bleed: 30, bgColor: 'white',
   }
 
   static myGrid: GridSpec = TileExporter.fourUp;

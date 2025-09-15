@@ -1,6 +1,6 @@
 import { C, F } from "@thegraid/common-lib";
-import { AliasLoader, CenterText, NamedContainer, RectShape, RectWithDisp, type CountClaz, type Paintable } from "@thegraid/easeljs-lib";
-import { Shape, Text, type Bitmap, type Container, type DisplayObject } from "@thegraid/easeljs-module";
+import { AliasLoader, RectShape, type CountClaz, type Paintable } from "@thegraid/easeljs-lib";
+import { type DisplayObject } from "@thegraid/easeljs-module";
 import { Tile } from "@thegraid/hexlib";
 import { CardShape } from "./card-shape";
 import { TileExporter } from "./tile-exporter";
@@ -77,16 +77,23 @@ export class WhistCard extends Tile  {
   gridSpec = TileExporter.myGrid;
 
   constructor(desc: CARD) {
-    super(desc.Aname);
+    super(desc.Aname); // cannot inject color directly
     this.desc = { now: '', active: '', run: '', ...desc };
     this.color = desc.color;
     this.cost = `${desc.cost}`;
+    this.baseShape.paint(this.mcolor);
     this.addComponents();
   }
 
-  // invoked by constructor.super()
+  // WARN: invoked by constructor.super() BEFORE this.color is set
   override makeShape(): Paintable {
-    return new CardShape('lavender', this.color, this.radius, true, 3, 10);
+    return new CardShape(this.mcolor, C.BLACK, this.radius, true, 30, 60);
+  }
+
+  override makeBleed(bleed: number): DisplayObject {
+    const rv = super.makeBleed(bleed) as RectShape;
+    rv.paint(rv.strokec, true);
+    return rv;
   }
 
   addComponents() {
@@ -105,22 +112,6 @@ export class WhistCard extends Tile  {
     // this.reCache(); // do not reCache: extends bouds to whole bmImage!
     this.paint(this.color)
   }
-
-  lineShape(y = 0, x0 = 0, dx = 90, color = 'red') {
-    const s = new Shape();
-    s.graphics.beginStroke(color).mt(x0, y).lt(x0+dx, y).endStroke();
-    return s;
-  }
-
-  darken(color: string, dc = .8) {
-    const rgb = C.nameToRgba(color);
-    const darka = rgb.map(cv => Math.min(255, Math.floor(cv * dc)));
-    const rgba = rgbaToName(darka, 1); // leave alpha at 1 for now
-    return rgba;
-  }
-
-  corner = 8;
-  border = 6;
 
   override paint(colorn?: string, force?: boolean): void {
     super.paint(this.mcolor, force);
