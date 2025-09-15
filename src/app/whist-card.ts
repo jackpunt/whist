@@ -1,5 +1,5 @@
 import { C, F } from "@thegraid/common-lib";
-import { AliasLoader, CircleShape, RectShape, type CountClaz, type Paintable } from "@thegraid/easeljs-lib";
+import { AliasLoader, CenterText, RectShape, type CountClaz, type Paintable } from "@thegraid/easeljs-lib";
 import { type DisplayObject } from "@thegraid/easeljs-module";
 import { Tile } from "@thegraid/hexlib";
 import { CardShape } from "./card-shape";
@@ -15,16 +15,17 @@ function rgbaToName(v: Uint8ClampedArray, alpha?: number|string) {
   }
 
 export class WhistCard extends Tile  {
-  // static family = 'SF Compact Rounded'; static fontLead = 0;
+  static rankSize = 120;
+  // static family = 'SF Compact Rounded Bold'; static fontLead = 0;
   // static family = 'Nunito'; static fontLead = 0;
-  // static family = 'Futura'; static fontLead = 12; // Futura steps on itsefl..
+  static family = 'Futura'; static fontLead = 12; // Futura steps on itself..
   // static family = 'Helvetica Neue'; static fontLead = 6;
-  static family = 'Fishmonger CS'; static fontLead = 13;
+  // static family = 'Fishmonger CS'; static fontLead = 13;
   static nameFont = (`condensed 500 65px ${WhistCard.family}`); // semibold ?
   static coinFont = F.fontSpec(80, `${WhistCard.family}`, 'bold');
   // static titleFont = F.fontSpec(36, `${CubeCard.family}`, '800 condensed');
   static titleFont = `36px ${WhistCard.family} bold`;
-  static textFont = F.fontSpec(36, `${WhistCard.family}`, 'condensed');
+  static rankFont = F.fontSpec(WhistCard.rankSize, `${WhistCard.family}`, 'condensed');
   static get fnames() {
     return WhistCard.cards.flatMap(card => [card.Aname, `Ninja-${card.Aname}`]);
   }
@@ -55,20 +56,21 @@ export class WhistCard extends Tile  {
   }
 
   static allCards(): CountClaz[] {
-    return WhistCard.cards.map((card: CARD) => [1, WhistCard, card]);
+    return WhistCard.cards.map((card: CARD) => [1, WhistCard, card, 'A']);
   }
 
   override get radius() { return 734 } // nextRadius
 
   x0 = 200; // align title, colored text/boxes
   color = 'white';
-  cost = '2';
+  rank: string = '';
   image?: ImageBitmap;
   gridSpec = TileExporter.myGrid;
 
-  constructor(desc: CARD) {
+  constructor(desc: CARD, rank = 'J') {
     super(desc.Aname); // cannot inject color directly
     this.color = desc.color;
+    this.rank = rank;
     this.addComponents();
   }
 
@@ -83,27 +85,41 @@ export class WhistCard extends Tile  {
     return rv;
   }
 
+  set2corners(dobj: DisplayObject, dx = 0, dy = 0, dobj2?: DisplayObject) {
+    const { x, y, width, height } = this.getBounds();
+    dobj.x = x + dx;
+    dobj.y = y + dy;
+    this.addChild(dobj);
+    if (dobj2) {
+      dobj2.rotation = 180;
+      dobj2.x = x + width - dx;
+      dobj2.y = y + height - dy;
+      this.addChild(dobj2);
+    }
+  }
+
   addComponents() {
     //
     const h = this.gridSpec.cardh!;
     const cname = `Ninja-${this.Aname}`;
     const imgWide = this.gridSpec.cardw! * .8;
     const bmImage = AliasLoader.loader.getBitmap(cname, imgWide); // scaled to fit cardw
-    const { x, y, height, width } = this.baseShape.getBounds();
-    const x0 = this.x0 = x + width * .455; // where to position Graphics to right of image
     if (bmImage) {
-      bmImage.x += 0; // can fudge if you want to see the cropped bleed graphics
-      this.addChild(bmImage);
+      this.addChild(bmImage); // TODO: maybe make 'pips' with smaller image (except K & A)
     }
-    const sWide = imgWide * .08
-    const sImage = AliasLoader.loader.getBitmap(this.Aname, sWide * 1.8);
+    const font = WhistCard.rankFont;
+    const { x, y, width, height } = this.getBounds();
+    const dx = width * .1;
+    const dy = dx * 2.4;
+    const rtext = new CenterText(this.rank, font, C.BLACK); rtext.textAlign = 'right';
+    const rtext2 = new CenterText(this.rank, font, C.BLACK); rtext2.textAlign = 'right';
+    this.set2corners(rtext, dx*1.15, rtext.getMeasuredLineHeight() * 1.1, rtext2);
+
+    const sWide = imgWide * .15;
+    const sImage = AliasLoader.loader.getBitmap(this.Aname, sWide);
+    const sImage2 = AliasLoader.loader.getBitmap(this.Aname, sWide);
     if (sImage) {
-      const { x, y, width, height } = this.getBounds();
-      const dx = width * .09;
-      const circ = new CircleShape(C.WHITE, sWide, '');
-      circ.x = sImage.x = x + dx;
-      circ.y = sImage.y = y + dx;
-      this.addChild(circ, sImage);
+      this.set2corners(sImage, dx - sWide * .15, dy, sImage2);
     }
     this.paint(this.color)
   }
