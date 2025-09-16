@@ -16,7 +16,7 @@ class NullGameSetup extends GameSetupLib {
   constructor(canvasId?: string, qParam?: Params) {
     super(canvasId, qParam);
     const exp = qParam?.['t'] ?? 0;
-    const tileExp = [TileExporter, TileExporter1][exp]
+    const tileExp = [TileExporter, TileExporter][exp]
     this.tileExporter = new tileExp(); // enable 'Make Pages' buttons
   }
 

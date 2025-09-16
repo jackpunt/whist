@@ -1,5 +1,5 @@
 import { C, F, type XY } from "@thegraid/common-lib";
-import { AliasLoader, CenterText, RectShape, type CountClaz, type Paintable } from "@thegraid/easeljs-lib";
+import { AliasLoader, CenterText, ImageGrid, RectShape, type CountClaz, type Paintable } from "@thegraid/easeljs-lib";
 import { type DisplayObject } from "@thegraid/easeljs-module";
 import { Tile } from "@thegraid/hexlib";
 import { CardShape } from "./card-shape";
@@ -70,7 +70,9 @@ export class WhistCard extends Tile  {
   color = 'white';
   rank: string = '';
   image?: ImageBitmap;
-  gridSpec = TileExporter.myGrid;
+
+  // static gridSpec = TileExporter.myGrid;
+  static gridSpec = ImageGrid.cardSingle_3_5;
 
   constructor(desc: CARD, rank = 'J') {
     super(desc.Aname); // cannot inject color directly
@@ -89,7 +91,7 @@ export class WhistCard extends Tile  {
 
   // WARN: invoked by constructor.super() BEFORE this.color is set
   override makeShape(size = this.radius): Paintable {
-    const bleed = TileExporter.myGrid.bleed
+    const bleed = WhistCard.gridSpec.bleed
     return new CardShape(this.mcolor, this.mcolor, size, true, bleed, 60);
   }
 
@@ -111,11 +113,13 @@ export class WhistCard extends Tile  {
       this.addChild(dobj2);
     }
   }
+
   suitBitmap(dw = 1, icon = false) {
-    const iwide = this.gridSpec.cardw! * .8;
+    const iwide = WhistCard.gridSpec.cardw! * .8;
     const cname = `${icon ? '' : 'Ninja-'}${this.Aname}`;
     return AliasLoader.loader.getBitmap(cname, iwide * dw);
   }
+
   // y: -1 or y: -2 --> rotate 180
   npips(n = 1, dw = .25) {
     const xyndx = [
