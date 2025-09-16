@@ -26,7 +26,7 @@ export class TileExporter extends TileExporterLib {
     y0: 60 + 1040/2, x0: 85 + 734/2, dely: 1122.5, delx: 814, bleed: 30, bgColor: 'white',
   }
 
-  static myGrid: GridSpec = TileExporter.fourUp;
+  static myGrid: GridSpec = TileExporter.euroPoker;
   cardCountAry: CardCount[] = [{ 'Player Aid': 1 }]; // an minimal default
   pageNames: string[] = [];
 

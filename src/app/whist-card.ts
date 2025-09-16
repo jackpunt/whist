@@ -88,8 +88,9 @@ export class WhistCard extends Tile  {
   }
 
   // WARN: invoked by constructor.super() BEFORE this.color is set
-  override makeShape(): Paintable {
-    return new CardShape(this.mcolor, this.mcolor, this.radius, true, 0, 60);
+  override makeShape(size = this.radius): Paintable {
+    const bleed = TileExporter.myGrid.bleed
+    return new CardShape(this.mcolor, this.mcolor, size, true, bleed, 60);
   }
 
   override makeBleed(bleed: number): DisplayObject {
@@ -130,7 +131,7 @@ export class WhistCard extends Tile  {
       [{ x: -1, y: -2 }, { x: -2, y: -1 }, { x: -2, y: 1 }, { x: -1, y: 2 }, { x: 1, y: -2 }, { x: 2, y: -1 }, { x: 2, y: 1 }, { x: 1, y: 2 }, { x: 0, y: 0 }], // 9
       [{ x: -1, y: -2 }, { x: -2, y: -1 }, { x: -2, y: 1 }, { x: -1, y: 2 }, { x: 1, y: -2 }, { x: 2, y: -1 }, { x: 2, y: 1 }, { x: 1, y: 2 }, { x: 0, y: 2 }, { x: 0, y: -2 }], // 10
     ] as XY[][];
-    const x1 = .22, x2 = .27;
+    const x1 = .22, x2 = .28;
     const y2 = .35, y1 = y2 * .33, y10 = y2 * .51, y20 = y2 * .55;
     const { width, height } = this.getBounds();
     const xp = (x: number) => [-x2, -x1, 0, x1, x2][x + 2];
@@ -147,7 +148,7 @@ export class WhistCard extends Tile  {
     })
   }
   addComponents() {
-    const dw = (this.rank == 'A' ? .6 : (this.rank == 'K' || this.rank == 'J') ? 1 : .33);
+    const dw = (this.rank == 'A' ? .6 : (this.rank == 'K' || this.rank == 'J') ? .75 : .23);
     const bmImage = this.suitBitmap(dw);
     if (bmImage) {
       if (dw > .5) {
@@ -159,10 +160,10 @@ export class WhistCard extends Tile  {
     const font = WhistCard.rankFont;
     const { x, y, width, height } = this.getBounds();
     const dx = width * .1;
-    const dy = dx * 2.4;
+    const dy = dx * 2.65;
     const rtext = new CenterText(this.rank, font, C.BLACK); rtext.textAlign = 'right';
     const rtext2 = new CenterText(this.rank, font, C.BLACK); rtext2.textAlign = 'right';
-    this.set2corners(rtext, dx*1.15, rtext.getMeasuredLineHeight() * 1.1, rtext2);
+    this.set2corners(rtext, dx * 1.15, rtext.getMeasuredLineHeight() * 1.1, rtext2);
 
     const sImage1 = this.suitBitmap(.15, true);
     const sImage2 = this.suitBitmap(.15, true);
