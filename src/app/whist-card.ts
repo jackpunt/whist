@@ -151,7 +151,7 @@ export class WhistCard extends Tile  {
       this.addChild(img);
     })
   }
-  addComponents() {
+  addPips() {
     const dw = (this.rank == 'A' ? .6 : (this.rank == 'K' || this.rank == 'J') ? .75 : .23);
     const bmImage = this.suitBitmap(dw);
     if (bmImage) {
@@ -161,6 +161,10 @@ export class WhistCard extends Tile  {
         this.npips(Number.parseInt(this.rank), dw)
       }
     }
+  }
+
+  addComponents() {
+    this.addPips();
     const font = WhistCard.rankFont;
     const { x, y, width, height } = this.getBounds();
     const dx = width * .1;
