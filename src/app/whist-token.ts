@@ -23,7 +23,7 @@ export class WhistToken extends Tile {
     );
   }
   static imageNames = [
-    'arrows', 'sword', 'staff', 'stars', 'knives',
+    'arrows', 'sword', 'staff', 'stars', 'knives', // yellow, grey, purple, blue, red
   ]
   static gridSpec = ImageGrid.cardSingle_1_75;
 

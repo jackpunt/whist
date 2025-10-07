@@ -14,7 +14,7 @@ import { StageComponent } from './stage/stage.component';
 export class App {
   protected readonly title = signal('whist');
   timestamp = `${new Date().toLocaleTimeString('en-US')}`;
-  linkUrl = 'https://github.com/jackpunt/gtr?tab=readme-ov-file#readme';
+  linkUrl = 'https://github.com/jackpunt/whist?tab=readme-ov-file#readme';
   linkName!: string;
 
   constructor(private titleService: Title) {

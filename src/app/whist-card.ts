@@ -3,17 +3,11 @@ import { AliasLoader, CenterText, ImageGrid, RectShape, type CountClaz, type Pai
 import { type DisplayObject } from "@thegraid/easeljs-module";
 import { Tile } from "@thegraid/hexlib";
 import { CardShape } from "./card-shape";
-import { TileExporter } from "./tile-exporter";
 
 // some cards have multiple 'run' boxes! so we allow string | string[]
 type CARD = {
   Aname: string, color: string, ranks: string[],
 };
-
-type RA = {a: number, r: number};
-function rgbaToName(v: Uint8ClampedArray, alpha?: number|string) {
-    return `rgba(${v[0]},${v[1]},${v[2]},${alpha ?? (v[3]/255).toFixed(2)})`
-  }
 
 export class WhistCard extends Tile  {
   static rankSize = 120;
@@ -35,8 +29,7 @@ export class WhistCard extends Tile  {
 
   // four suits:
   static cards: CARD[] = [
-    {Aname: 'arrows', color: 'yellow', ranks: ['J'] },
-    {Aname: 'arrows', color: 'yellow', ranks: ['j'] },
+    {Aname: 'arrows', color: 'yellow', ranks: ['J', 'j'] },
     {Aname: 'sword', color: 'white', ranks: WhistCard.ranks},
     {Aname: 'staff', color: 'purple', ranks: WhistCard.ranks, },
     {Aname: 'stars', color: 'blue', ranks: WhistCard.ranks, },

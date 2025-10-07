@@ -29,9 +29,9 @@ export class TileExporter extends TileExporterLib {
     // this.cardCountAry = [this.namesSmall];
   }
 
-  // TODO: extra cards for cursus, player aides for GtR,
-  // whist[44] A-2-10-K, 8 x [R&G pair] ten-pt-counters, trick-bonus [32]
-  // 44 + (16 + 32)/2 =  44 + 24 = 68 < 75; +7 cards (lesser Joker, & 6 aides?)
+  // TODO: extra cards for cursus incl: tableau layouts, player aides for GtR,
+  // whist[44] A-2-10-K, 8.5 x [R&G pair] 15-pt-counters, 9x[0-7 bid], trick-bonus [32]
+  // 46 + (32+17+9)/2 =  46 + 29 = 75 < 75;
   override makeImagePages() {
     // [...[count, claz, ...constructorArgs]]
     const whistCards_base_back = [
