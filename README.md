@@ -87,11 +87,11 @@ A bonus token cannot be played (from play area) during the round it was acquired
 
 At the end of the round, bonus tokens are moved from the play area to the player's *score area*.
 
-There are 31 bonus tokens.
-- 1: no bonus
-- 4: one bonus (a, b, c, d)
-- 10: two bonus (aa, ab, ac, ad, bb, bc, bd, cc, cd, dd)
-- 16: three bonus (aab, aac, aad, bba, bbc, bbd, cca, ccb, ccd, dda, ddb, ddc, abc, abd, acd, bcd)
+There are 32 bonus tokens.
+- 2: no suit bonus (archers)
+- 4: one suit bonus (a, b, c, d)
+- 10: two suit bonus (aa, ab, ac, ad, bb, bc, bd, cc, cd, dd)
+- 16: three suit bonus (aab, aac, aad, bba, bbc, bbd, cca, ccb, ccd, dda, ddb, ddc, abc, abd, acd, bcd)
 
 ## Score each round:
 After the final trick of the round is taken, each player scores their bid:
