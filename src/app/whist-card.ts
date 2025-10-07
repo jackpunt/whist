@@ -10,6 +10,7 @@ type CARD = {
   Aname: string, color: string, ranks: string[],
 };
 
+type RA = {a: number, r: number};
 function rgbaToName(v: Uint8ClampedArray, alpha?: number|string) {
     return `rgba(${v[0]},${v[1]},${v[2]},${alpha ?? (v[3]/255).toFixed(2)})`
   }
@@ -114,48 +115,53 @@ export class WhistCard extends Tile  {
     }
   }
 
+  // Bitmap of image for this Card
   suitBitmap(dw = 1, icon = false) {
     const iwide = WhistCard.gridSpec.cardw! * .8;
     const cname = `${icon ? '' : 'Ninja-'}${this.Aname}`;
     return AliasLoader.loader.getBitmap(cname, iwide * dw);
   }
 
-  // y: -1 or y: -2 --> rotate 180
   npips(n = 1, dw = .25) {
-    const xyndx = [
-      [{ x: 0, y: 0 }], // 'A' or 'K' or 'J'
-      [{ x: 0, y: 0 }], // 'A' or 'K' or 'J'
-      [{ x: 0, y: -2 }, { x: 0, y: 2 }],
-      [{ x: 1, y: -2 }, { x: -1, y: 2 }, { x: 0, y: 0 }],
-      [{ x: -1, y: -2 }, { x: 1, y: -2 }, { x: 1, y: 2 }, { x: -1, y: 2 }],
-      [{ x: -1, y: -2 }, { x: 1, y: -2 }, { x: 1, y: 2 }, { x: -1, y: 2 }, { x: 0, y: 0 }],
-      [{ x: -1, y: -2 }, { x: -2, y: 0 }, { x: -1, y: 2 }, { x: 1, y: -2 }, { x: 2, y: 0 }, { x: 1, y: 2 }], // 6
-      [{ x: -1, y: -2 }, { x: -2, y: 0 }, { x: -1, y: 2 }, { x: 1, y: -2 }, { x: 2, y: 0 }, { x: 1, y: 2 }, { x: 0, y: -1 }], // 7
-      [{ x: -1, y: -2 }, { x: -2, y: 0 }, { x: -1, y: 2 }, { x: 1, y: -2 }, { x: 2, y: 0 }, { x: 1, y: 2 }, { x: 0, y: -1 }, { x: 0, y: 1 }], // 8
-      [{ x: -1, y: -2 }, { x: -2, y: -1 }, { x: -2, y: 1 }, { x: -1, y: 2 }, { x: 1, y: -2 }, { x: 2, y: -1 }, { x: 2, y: 1 }, { x: 1, y: 2 }, { x: 0, y: 0 }], // 9
-      [{ x: -1, y: -2 }, { x: -2, y: -1 }, { x: -2, y: 1 }, { x: -1, y: 2 }, { x: 1, y: -2 }, { x: 2, y: -1 }, { x: 2, y: 1 }, { x: 1, y: 2 }, { x: 0, y: 2 }, { x: 0, y: -2 }], // 10
-    ] as XY[][];
-    const x1 = .22, x2 = .28;
-    const y2 = .35, y1 = y2 * .33, y10 = y2 * .51, y20 = y2 * .55;
+    const r0 = 0, r1 = .30, r2 = .33, r3 = .33, r4 = .09;
+    const a0 = 0, a1 = 0, a2 = 49, a3 = 60, a4 = 90;
+    // { r: radius, a: angle }
+    const randx = [
+      [{ r: r0 , a: a0 }], // 'A' or 'K' or 'J'
+      [{ r: r0 , a: a0 }], // 'A' or 'K' or 'J'
+      [{ r: r1 , a: a1 }, { r: -r1, a: a1 }],  // 2
+      [{ r: r2 , a: -a0 }, { r: -r2 , a: -a0 }, { r: r0 , a: a0 }], // 3
+      [{ r: r2 , a: a2 }, { r: -r2 , a: a2 }, { r: -r2 , a: -a2 }, { r: r2 , a: -a2 }], // 4
+      [{ r: r2 , a: a2 }, { r: -r2 , a: a2 }, { r: -r2 , a: -a2 }, { r: r2 , a: -a2 }, { r: r0 , a: a0 }],
+      [{ r: r2 , a: a3 }, { r: -r2 , a: a3 }, { r: -r2 , a: -a3 }, { r: r2 , a: -a3 }, { r: r2 , a: a1 }, { r: -r2 , a: a1 }], // 6
+      [{ r: r2 , a: a3 }, { r: -r2 , a: a3 }, { r: -r2 , a: -a3 }, { r: r2 , a: -a3 }, { r: r2 , a: a1 }, { r: -r2 , a: a1 }, { r: r0 , a: a0 }], // 7
+
+      [{ r: r2 , a: a2 }, { r: -r2 , a: a2 }, { r: -r2 , a: -a2 }, { r: r2 , a: -a2 },
+       { r: r3 , a: a0 }, { r: -r3 , a: a0 }, { r: r3 , a: a4 }, { r: -r3 , a: a4 }], // 4
+      [{ r: r2 , a: a2 }, { r: -r2 , a: a2 }, { r: -r2 , a: -a2 }, { r: r2 , a: -a2 },
+       { r: r3 , a: a0 }, { r: -r3 , a: a0 }, { r: r3 , a: a4 }, { r: -r3 , a: a4 }, { r: r0 , a: a0}], // 4
+      [{ r: r2 , a: a2 }, { r: -r2 , a: a2 }, { r: -r2 , a: -a2 }, { r: r2 , a: -a2 },
+       { r: r3 , a: a0 }, { r: -r3 , a: a0 }, { r: r3 , a: a4 }, { r: -r3 , a: a4 }, { r: r4 , a: a0 }, { r: -r4 , a: a0}], // 4
+    ] as { r: number, a: number }[][];
     const { width, height } = this.getBounds();
-    const xp = (x: number) => [-x2, -x1, 0, x1, x2][x + 2];
-    const ypa = (x: number) => (x == 0) ? [-y20, -y10, 0, y10, y20] : [-y2, -y1, 0, y1, y2];
-    const yp = (x: number, y: number) => ypa(x)[y + 2];
-    const xyp = (n: number) => xyndx[n].map(({ x, y }) => ({ x: xp(x), y: yp(x, y) } as XY));
-    const xyAry = xyp(n);
-    xyAry.forEach(({ x, y }) => {
-      const img = this.suitBitmap(dw);
+
+    randx[n].forEach(({ r, a: deg }) => {
+      const img = this.suitBitmap(dw); // new instance for each pip
+      const rad = deg * Math.PI / 180.;
+      const x = Math.sin(rad) * r;
+      const y = Math.cos(rad) * r;
       img.x = x * width;
       img.y = y * height;
-      if (y > 0) img.rotation = 180;
+      img.rotation = - deg  + (r <= 0 ? 0 : 180);
       this.addChild(img);
     })
   }
+
   addPips() {
-    const dw = (this.rank == 'A' ? .6 : (this.rank == 'K' || this.rank == 'J') ? .75 : .23);
+    const dw = (this.rank == 'A' ? .5 : (this.rank == 'K' || this.rank == 'J') ? .75 : .20);
     const bmImage = this.suitBitmap(dw);
     if (bmImage) {
-      if (dw > .5) {
+      if (dw > .3) {
         this.addChild(bmImage); // TODO: maybe make 'pips' with smaller image (except K & A)
       } else {
         this.npips(Number.parseInt(this.rank), dw)
