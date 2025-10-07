@@ -1,6 +1,7 @@
 import { ImageGrid, TileExporter as TileExporterLib, type CountClaz, type GridSpec, type PageSpec } from "@thegraid/easeljs-lib";
 import { WhistCard } from "./whist-card";
-import { WhistToken } from "./whist-token";
+import { BidCounter, PointCounter, WhistToken } from "./whist-token";
+import { arrayN } from "@thegraid/common-lib";
 
 // end imports
 
@@ -30,8 +31,10 @@ export class TileExporter extends TileExporterLib {
   }
 
   // TODO: extra cards for cursus incl: tableau layouts, player aides for GtR,
-  // whist[44] A-2-10-K, 8.5 x [R&G pair] 15-pt-counters, 9x[0-7 bid], trick-bonus [32]
+  // whist[44] A-2-10-K, 17x PointCounter, 9x[0-7 BidCounter], trick-bonus [32]
   // 46 + (32+17+9)/2 =  46 + 29 = 75 < 75;
+  // TODO: border around card
+
   override makeImagePages() {
     // [...[count, claz, ...constructorArgs]]
     const whistCards_base_back = [
@@ -41,8 +44,11 @@ export class TileExporter extends TileExporterLib {
     ] as CountClaz[];
 
     const whistTokens_base = [
+      [8, PointCounter, 'Points'], // [1, .., 10]
+      [4, BidCounter, 'BidFront', '0', '1', '2', '3'],
+      [4, BidCounter, 'BidBack', '4', '5', '6', '7'],
       ...WhistToken.allTokens(),
-    ];
+    ] as CountClaz[];
     const pageSpecs: PageSpec[] = [];
     this.clazToTemplate(whistTokens_base, WhistToken.gridSpec, pageSpecs);
     this.clazToTemplate(whistCards_base, WhistCard.gridSpec, pageSpecs);

@@ -29,13 +29,17 @@ Deal cards to each player, up to hand size for the current round.
 In the first round hand size is 1.  
 Hand size increases by 1 each round, up to max hand size; then decreases by 1 each round.
 
+| Players:  | 3 | 4 | 5 | 6 | 7 | 8 | 9 |
+|:--        |:-:|:-:|:-:|:-:|:-:|:-:|:-:|
+| Max size: |15 |11 | 9 | 7 | 6 | 5 | 5 |
+
 Reveal the next card, indicating the trump suit for that round.  
 If the Archer is so revealed, the round is played with no trump.
 At the maximum hand size, the round is played with no trump.  
 
 Option: With 7 or more players, play the max size round twice.
 
-## players contract for number of tricks each will take
+## Players contract for number of tricks each will take
 Beginning with the eldest hand, each player declares the exact number of tricks they expect to take.  
 Record each bid (place the 0-7 bid marker with bid facing player).  
 
@@ -43,7 +47,7 @@ Dealer (last to bid, with most information) is constrained:
 Dealer *must* bid so that the total of all players’ bids does **not** equal the hand size.
 That is: it is not possible for *all* players to make their bids.
 
-### Play each trick
+## Play each trick
 Eldest hand makes initial lead.  
 Other players in order follow suit if able; else may sluff or trump.  
 Players may also play one or more bonus tokens from their *score* area, increasing the rank of a numeric card.
