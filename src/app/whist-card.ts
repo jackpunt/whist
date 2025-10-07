@@ -36,6 +36,7 @@ export class WhistCard extends Tile  {
   // four suits:
   static cards: CARD[] = [
     {Aname: 'arrows', color: 'yellow', ranks: ['J'] },
+    {Aname: 'arrows', color: 'yellow', ranks: ['j'] },
     {Aname: 'sword', color: 'white', ranks: WhistCard.ranks},
     {Aname: 'staff', color: 'purple', ranks: WhistCard.ranks, },
     {Aname: 'stars', color: 'blue', ranks: WhistCard.ranks, },
@@ -130,7 +131,7 @@ export class WhistCard extends Tile  {
       [{ r: r0 , a: a0 }], // 'A' or 'K' or 'J'
       [{ r: r0 , a: a0 }], // 'A' or 'K' or 'J'
       [{ r: r1 , a: a1 }, { r: -r1, a: a1 }],  // 2
-      [{ r: r2 , a: -a0 }, { r: -r2 , a: -a0 }, { r: r0 , a: a0 }], // 3
+      [{ r: r2 , a: -a2 }, { r: -r2 , a: -a2 }, { r: r0 , a: a0 }], // 3
       [{ r: r2 , a: a2 }, { r: -r2 , a: a2 }, { r: -r2 , a: -a2 }, { r: r2 , a: -a2 }], // 4
       [{ r: r2 , a: a2 }, { r: -r2 , a: a2 }, { r: -r2 , a: -a2 }, { r: r2 , a: -a2 }, { r: r0 , a: a0 }],
       [{ r: r2 , a: a3 }, { r: -r2 , a: a3 }, { r: -r2 , a: -a3 }, { r: r2 , a: -a3 }, { r: r2 , a: a1 }, { r: -r2 , a: a1 }], // 6
@@ -158,7 +159,7 @@ export class WhistCard extends Tile  {
   }
 
   addPips() {
-    const dw = (this.rank == 'A' ? .5 : (this.rank == 'K' || this.rank == 'J') ? .75 : .20);
+    const dw = ((this.rank == 'A' || this.rank == 'j') ? .5 : (this.rank == 'K' || this.rank == 'J') ? .75 : .20);
     const bmImage = this.suitBitmap(dw);
     if (bmImage) {
       if (dw > .3) {
@@ -175,8 +176,9 @@ export class WhistCard extends Tile  {
     const { x, y, width, height } = this.getBounds();
     const dx = width * .1;
     const dy = dx * 2.65;
-    const rtext = new CenterText(this.rank, font, C.BLACK); rtext.textAlign = 'right';
-    const rtext2 = new CenterText(this.rank, font, C.BLACK); rtext2.textAlign = 'right';
+    const rank = (this.rank == 'j' ? 'J' : this.rank);
+    const rtext = new CenterText(rank, font, C.BLACK); rtext.textAlign = 'right';
+    const rtext2 = new CenterText(rank, font, C.BLACK); rtext2.textAlign = 'right';
     this.set2corners(rtext, dx * 1.15, rtext.getMeasuredLineHeight() * 1.1, rtext2);
 
     const sImage1 = this.suitBitmap(.15, true);
