@@ -1,4 +1,4 @@
-import { C, F, type XY } from "@thegraid/common-lib";
+import { C, F } from "@thegraid/common-lib";
 import { AliasLoader, CenterText, ImageGrid, RectShape, type CountClaz, type Paintable } from "@thegraid/easeljs-lib";
 import { type DisplayObject } from "@thegraid/easeljs-module";
 import { Tile } from "@thegraid/hexlib";
@@ -200,9 +200,11 @@ export class WhistBack extends WhistCard {
 
   constructor() {
     super({Aname: 'back', color: 'white', ranks: []}, '?');
+    this.addComponents();
   }
 
   override addComponents(): void {
+    if (!this.ninjaColor) return;   // called from super.constuctor!
     const { x, y, width, height } = this.getBounds();
 
     const ninja = new CenterText('Ninja', WhistBack.ninjaFont, this.ninjaColor);
