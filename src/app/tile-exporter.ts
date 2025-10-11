@@ -1,5 +1,5 @@
 import { ImageGrid, TileExporter as TileExporterLib, type CountClaz, type GridSpec, type PageSpec } from "@thegraid/easeljs-lib";
-import { WhistCard } from "./whist-card";
+import { WhistBack, WhistCard } from "./whist-card";
 import { BidCounter, PointCounter, WhistToken } from "./whist-token";
 import { arrayN } from "@thegraid/common-lib";
 
@@ -38,6 +38,7 @@ export class TileExporter extends TileExporterLib {
   override makeImagePages() {
     // [...[count, claz, ...constructorArgs]]
     const whistCards_base_back = [
+      [8, WhistBack, 'Back' ],
     ] as CountClaz[];
     const whistCards_base = [
       ...WhistCard.allCards(),
@@ -50,7 +51,9 @@ export class TileExporter extends TileExporterLib {
       ...WhistToken.allTokens(),
     ] as CountClaz[];
     const pageSpecs: PageSpec[] = [];
-    this.clazToTemplate(whistTokens_base, WhistToken.gridSpec, pageSpecs);
+    this.clazToTemplate(whistCards_base_back, WhistCard.gridSpec, pageSpecs);
+
+    // this.clazToTemplate(whistTokens_base, WhistToken.gridSpec, pageSpecs);
     this.clazToTemplate(whistCards_base, WhistCard.gridSpec, pageSpecs);
 
     return pageSpecs;

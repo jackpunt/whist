@@ -16,7 +16,7 @@ export class WhistCard extends Tile  {
   static family = 'Futura'; static fontLead = 12; // Futura steps on itself..
   // static family = 'Helvetica Neue'; static fontLead = 6;
   // static family = 'Fishmonger CS'; static fontLead = 13;
-  static nameFont = (`condensed 500 65px ${WhistCard.family}`); // semibold ?
+  static nameFont = (`condensed 500 65px ${WhistCard.family}`); // semibold
   static coinFont = F.fontSpec(80, `${WhistCard.family}`, 'bold');
   // static titleFont = F.fontSpec(36, `${CubeCard.family}`, '800 condensed');
   static titleFont = `36px ${WhistCard.family} bold`;
@@ -29,11 +29,11 @@ export class WhistCard extends Tile  {
 
   // four suits:
   static cards: CARD[] = [
-    {Aname: 'arrows', color: 'yellow', ranks: ['J', 'j'] },
-    {Aname: 'sword', color: 'white', ranks: WhistCard.ranks},
-    {Aname: 'staff', color: 'purple', ranks: WhistCard.ranks, },
-    {Aname: 'stars', color: 'blue', ranks: WhistCard.ranks, },
-    {Aname: 'knives', color: 'red', ranks: WhistCard.ranks, },
+    { Aname: 'arrows', color: 'yellow', ranks: ['J', 'j'] },
+    { Aname: 'sword', color: 'white', ranks: WhistCard.ranks },
+    { Aname: 'staff', color: 'purple', ranks: WhistCard.ranks, },
+    { Aname: 'stars', color: 'blue', ranks: WhistCard.ranks, },
+    { Aname: 'knives', color: 'red', ranks: WhistCard.ranks, },
   ];
 
   /** color map: canonical name -> hmtl color code */
@@ -69,6 +69,7 @@ export class WhistCard extends Tile  {
   // static gridSpec = TileExporter.myGrid;
   static gridSpec = ImageGrid.cardSingle_3_5;
 
+  /* make specific rank (from desc.ranks) */
   constructor(desc: CARD, rank = 'J') {
     super(desc.Aname); // cannot inject color directly
     this.color = desc.color;
@@ -188,4 +189,30 @@ export class WhistCard extends Tile  {
   }
 }
 
+export class WhistBack extends WhistCard {
+  static ninjaFam = 'aAssassinNinja';
+  static ninjaFont = `500 200px aAssassinNinja`; // 65px semibold?
+  static whistFont = `500 170px Fishmonger ES`;
 
+  ninjaColor = 'rgb(249, 129, 0)';
+  whistColor = 'rgb(196, 101, 0)';
+
+
+  constructor() {
+    super({Aname: 'back', color: 'white', ranks: []}, '?');
+  }
+
+  override addComponents(): void {
+    const { x, y, width, height } = this.getBounds();
+
+    const ninja = new CenterText('Ninja', WhistBack.ninjaFont, this.ninjaColor);
+    ninja.rotation = 260;
+    ninja.y = width * .35;
+
+    const whist = new CenterText('whist', WhistBack.whistFont, this.whistColor);
+    whist.rotation = -90;
+    whist.y = width * -.3;
+
+    this.addChild(ninja, whist);
+  }
+}
