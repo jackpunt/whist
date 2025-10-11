@@ -1,6 +1,6 @@
 import { C, F } from "@thegraid/common-lib";
 import { AliasLoader, CenterText, ImageGrid, RectShape, type CountClaz, type Paintable } from "@thegraid/easeljs-lib";
-import { type DisplayObject } from "@thegraid/easeljs-module";
+import { Container, type DisplayObject } from "@thegraid/easeljs-module";
 import { Tile } from "@thegraid/hexlib";
 import { CardShape } from "./card-shape";
 import { TextTweaks, type TWEAKS } from "./text-tweaks";
@@ -47,6 +47,8 @@ export class WhistCard extends Tile  {
     purple:'rgba(218, 164, 254, 1)',// '0x7e27bc',
     brown: 'rgb(166, 128, 50)',
     white: 'rgba(232, 232, 232, 1)',
+    pure: 'white',
+    transp: C.transparent,
   } as Record<string, string>;
 
   /** main color of card: cmap[this.color] */
@@ -190,7 +192,7 @@ export class WhistCard extends Tile  {
   }
 }
 
-export class WhistBack extends WhistCard {
+export class LogoText extends Container {
   static ninjaFam = 'aAssassinNinja';
   static ninjaFont = `500 200px aAssassinNinja`; // 65px semibold?
   static whistFont = `500 170px Fishmonger ES`;
@@ -199,17 +201,22 @@ export class WhistBack extends WhistCard {
   whistColor = 'rgba(168, 58, 0, 1)';
   tweaker: TextTweaks = new TextTweaks(this);
 
+  constructor(width = 300) {
+    super();
+    const tweaks = { align: 'center', baseline: 'middle' } as TWEAKS;
+    this.tweaker.setTextFrag('Ninja', LogoText.ninjaFont, { color: this.ninjaColor, dy: .33 * width, rotation: -100, ...tweaks });
+    this.tweaker.setTextFrag('whist', LogoText.whistFont, { color: this.whistColor, dy: -.31 * width, rotation: -90, ...tweaks });
+  }
+}
+
+export class WhistBack extends WhistCard {
 
   constructor() {
-    super({Aname: 'back', color: 'white', ranks: []}, '?');
-    this.addComponents();
+    super({ Aname: 'back', color: 'pure', ranks: [] }, '?');
   }
 
   override addComponents(): void {
-    if (!this.tweaker) return;   // called from super.constuctor!
-    const { width } = this.getBounds();
-    const tweaks = { align: 'center', baseline: 'middle' } as TWEAKS;
-    this.tweaker.setTextFrag('Ninja', WhistBack.ninjaFont, { color: this.ninjaColor, dy: .33 * width, rotation: -100, ...tweaks });
-    this.tweaker.setTextFrag('whist', WhistBack.whistFont, { color: this.whistColor, dy: -.31 * width, rotation: -90, ...tweaks });
+    const width = this.getBounds().width;
+    this.addChild(new LogoText(width))
   }
 }
