@@ -3,6 +3,7 @@ import { AliasLoader, CenterText, ImageGrid, RectShape, type CountClaz, type Pai
 import { type DisplayObject } from "@thegraid/easeljs-module";
 import { Tile } from "@thegraid/hexlib";
 import { CardShape } from "./card-shape";
+import { TextTweaks, type TWEAKS } from "./text-tweaks";
 
 // some cards have multiple 'run' boxes! so we allow string | string[]
 type CARD = {
@@ -194,8 +195,9 @@ export class WhistBack extends WhistCard {
   static ninjaFont = `500 200px aAssassinNinja`; // 65px semibold?
   static whistFont = `500 170px Fishmonger ES`;
 
-  ninjaColor = 'rgb(249, 129, 0)';
-  whistColor = 'rgb(196, 101, 0)';
+  ninjaColor = 'rgba(249, 87, 0, 1)';
+  whistColor = 'rgba(168, 58, 0, 1)';
+  tweaker: TextTweaks = new TextTweaks(this);
 
 
   constructor() {
@@ -204,17 +206,10 @@ export class WhistBack extends WhistCard {
   }
 
   override addComponents(): void {
-    if (!this.ninjaColor) return;   // called from super.constuctor!
-    const { x, y, width, height } = this.getBounds();
-
-    const ninja = new CenterText('Ninja', WhistBack.ninjaFont, this.ninjaColor);
-    ninja.rotation = 260;
-    ninja.y = width * .35;
-
-    const whist = new CenterText('whist', WhistBack.whistFont, this.whistColor);
-    whist.rotation = -90;
-    whist.y = width * -.3;
-
-    this.addChild(ninja, whist);
+    if (!this.tweaker) return;   // called from super.constuctor!
+    const { width } = this.getBounds();
+    const tweaks = { align: 'center', baseline: 'middle' } as TWEAKS;
+    this.tweaker.setTextFrag('Ninja', WhistBack.ninjaFont, { color: this.ninjaColor, dy: .33 * width, rotation: -100, ...tweaks });
+    this.tweaker.setTextFrag('whist', WhistBack.whistFont, { color: this.whistColor, dy: -.31 * width, rotation: -90, ...tweaks });
   }
 }

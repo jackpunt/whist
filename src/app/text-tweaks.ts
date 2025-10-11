@@ -6,6 +6,7 @@ export type TWEAKS = {
   color?: string, align?: ('left' | 'center' | 'right'),  baseline?: BASELINE,
   style?: string, weight?: string | number, size?: number, family?: string,
   xwide?: number,    // if supplied: shrink fontSize to fit within xwide
+  rotation?: number, // if supplied: degrees of rotation
   dx?: number, dy?: number, lineno?: number, nlh?: number, // add lead to after/btwn each line.
 };
 
@@ -126,10 +127,11 @@ export class TextTweaks {
    * @returns Text which ends at: (rv.x + rv.getMeasuredWidth(), rv.y)
    */
   setTextFrag(frag: string, fontStr: string, tweaks: TWEAKS) {
-    const { dx, dy, align, baseline } = { dx: 0, dy: 0, align: 'left', baseline: 'top', ...tweaks }
+    const { dx, dy, align, baseline, rotation } = { dx: 0, dy: 0, rotation: 0, align: 'left', baseline: 'top', ...tweaks }
     const cText = this.makeText(frag, fontStr, tweaks); // make Text object with fontStr (style, weight, size, family)
     cText.textBaseline = baseline; // 'top' | 'middle' | 'bottom'
     cText.textAlign = align;
+    cText.rotation = rotation;
     cText.x = dx;
     cText.y = dy;
     return this.cont.addChild(cText);
