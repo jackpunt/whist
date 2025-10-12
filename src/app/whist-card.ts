@@ -1,5 +1,5 @@
 import { C, F } from "@thegraid/common-lib";
-import { AliasLoader, CenterText, ImageGrid, RectShape, type CountClaz, type Paintable } from "@thegraid/easeljs-lib";
+import { AliasLoader, CenterText, ImageGrid, RectShape, type CountClaz, type GridSpec, type Paintable } from "@thegraid/easeljs-lib";
 import { Container, type DisplayObject } from "@thegraid/easeljs-module";
 import { Tile } from "@thegraid/hexlib";
 import { CardShape } from "./card-shape";
@@ -14,8 +14,8 @@ export class WhistCard extends Tile  {
   static rankSize = 120;
   // static family = 'SF Compact Rounded Bold'; static fontLead = 0;
   // static family = 'Nunito'; static fontLead = 0;
-  static family = 'Futura'; static fontLead = 12; // Futura steps on itself..
-  // static family = 'Helvetica Neue'; static fontLead = 6;
+  // static family = 'Futura'; static fontLead = 12; // Futura steps on itself..
+  static family = 'Helvetica Neue'; static fontLead = -14;
   // static family = 'Fishmonger CS'; static fontLead = 13;
   static nameFont = (`condensed 500 65px ${WhistCard.family}`); // semibold
   static coinFont = F.fontSpec(80, `${WhistCard.family}`, 'bold');
@@ -62,13 +62,17 @@ export class WhistCard extends Tile  {
     );
   }
 
-  override get radius() { return 734 } // nextRadius
+  override get radius() { return WhistCard.gridSpec.cardh ?? 734 } // nextRadius (750 x 1050)
 
   x0 = 200; // align title, colored text/boxes
   color = 'white';
   rank: string = '';
   image?: ImageBitmap;
 
+  static cardSingle_3_5: GridSpec = {
+    width: 3600, height: 5400, nrow: 6, ncol: 3, cardw: 1050, cardh: 750, // (inch_w*dpi + 2*bleed)
+    x0: 120 + 3.5 * 150 + 30, y0: 83 + 3.5 * 150 + 30, delx: 1125, dely: 825, bleed: 30, double: false,
+  };
   // static gridSpec = TileExporter.myGrid;
   static gridSpec = ImageGrid.cardSingle_3_5;
 
@@ -90,16 +94,30 @@ export class WhistCard extends Tile  {
 
   // WARN: invoked by constructor.super() BEFORE this.color is set
   override makeShape(size = this.radius): Paintable {
-    const bleed = WhistCard.gridSpec.bleed
-    return new CardShape(this.mcolor, this.mcolor, size, true, bleed, 60);
+    const bleed = WhistCard.gridSpec.bleed ?? 0
+    return new CardShape(this.mcolor, 'white', size, true, 45, 45); // size, portrait, ss, corner
   }
 
   override makeBleed(bleed: number): DisplayObject {
-    const rv = super.makeBleed(bleed) as RectShape;
-    rv.paint(rv.strokec, true);
+    const bs = this.baseShape as RectShape;
+    const { x, y, w, h } = bs._rect, ss = bs._sSiz+0, b = ss/2 + bleed;
+    // enlarge by 'bleed'; add corner radius and stroke size
+    const xywhrs = { x: x - b, y: y - b, w: w + b * 2, h: h + b * 2, r: 70, s: ss };
+    const rv = new RectShape(xywhrs, bs.strokec, ''); // (xywhrs, fillc, strokec)
+    rv.rotation = this.rotation
+    // const rv = super.makeBleed(bleed) as RectShape;
+    // rv.paint(rv.strokec, true);
     return rv;
   }
 
+  /**
+   * put dobj @ this.getBounds() + { x: dx, y: dy }
+   * if dobj2: put it upside down in opposite corner
+   * @param dobj
+   * @param dx
+   * @param dy
+   * @param dobj2
+   */
   set2corners(dobj: DisplayObject, dx = 0, dy = 0, dobj2?: DisplayObject) {
     const { x, y, width, height } = this.getBounds();
     dobj.x = x + dx;
@@ -156,7 +174,7 @@ export class WhistCard extends Tile  {
   }
 
   addPips() {
-    const dw = ((this.rank == 'A' || this.rank == 'j') ? .5 : (this.rank == 'K' || this.rank == 'J') ? .75 : .20);
+    const dw = ((this.rank == 'A' || this.rank == 'j') ? .5 : (this.rank == 'K' || this.rank == 'J') ? .68 : .20);
     const bmImage = this.suitBitmap(dw);
     if (bmImage) {
       if (dw > .3) {
@@ -171,17 +189,26 @@ export class WhistCard extends Tile  {
     this.addPips();
     const font = WhistCard.rankFont;
     const { x, y, width, height } = this.getBounds();
-    const dx = width * .1;
-    const dy = dx * 2.65;
-    const rank = (this.rank == 'j' ? 'J' : this.rank);
-    const rtext = new CenterText(rank, font, C.BLACK); rtext.textAlign = 'right';
-    const rtext2 = new CenterText(rank, font, C.BLACK); rtext2.textAlign = 'right';
-    this.set2corners(rtext, dx * 1.15, rtext.getMeasuredLineHeight() * 1.1, rtext2);
+    const bleed = WhistCard.gridSpec.bleed ?? 0;
 
-    const sImage1 = this.suitBitmap(.15, true);
-    const sImage2 = this.suitBitmap(.15, true);
+    // show rank (Text) in each corner:
+    const rank = (this.rank == 'j' ? 'J' : this.rank);
+    const dx = bleed + width * (rank !== '10' ? .01 : -.02); // inset text & image from edge of card
+    const rtext = new CenterText(rank, font, C.BLACK); rtext.textAlign = 'left'; rtext.textBaseline = 'top';
+    const rtext2 = new CenterText(rank, font, C.BLACK); rtext2.textAlign = 'left'; rtext2.textBaseline = 'top';
+    const mlh = rtext.getMeasuredLineHeight();
+    const dy = bleed + mlh * .05 + WhistCard.fontLead;
+    this.set2corners(rtext, dx, dy, rtext2);
+
+    // show suitBitmap below each rtext:
+    const si = .15; // scale image
+    const sImage1 = this.suitBitmap(si, true);
+    const sImage2 = this.suitBitmap(si, true);
     if (sImage1) {
-      this.set2corners(sImage1, dx - 13, dy, sImage2);
+      const { width, height } = { ...sImage1.getBounds(), width: 800 } // so staff.widht = 800
+      const dx = bleed + si * width / 2.2;           // inset; a bit left of center
+      const dy = bleed + si * height / 6 + mlh ;     // downset image from top of card
+      this.set2corners(sImage1, dx, dy, sImage2);
     }
     this.paint(this.color)
   }
