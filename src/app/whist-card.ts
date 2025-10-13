@@ -209,7 +209,7 @@ export class WhistCard extends Tile  {
     if (this.rank == '10') {
       const kern = t1.getMeasuredWidth() + WhistCard.kernTen;
       tweak1.setTextFrag('0', font, { ...tweaks, dx: dx + kern })
-      tweak1.setTextFrag('0', font, { ...tweaks, dx: dx + kern })
+      tweak2.setTextFrag('0', font, { ...tweaks, dx: dx + kern })
     }
     this.set2corners(tweak1.cont, 0, 0, tweak2.cont);
     // show suitBitmap below each rtext:
