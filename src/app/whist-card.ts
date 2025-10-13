@@ -1,5 +1,5 @@
 import { C, F } from "@thegraid/common-lib";
-import { AliasLoader, CenterText, ImageGrid, RectShape, type CountClaz, type GridSpec, type Paintable } from "@thegraid/easeljs-lib";
+import { AliasLoader, ImageGrid, NamedContainer, RectShape, type CountClaz, type GridSpec, type Paintable } from "@thegraid/easeljs-lib";
 import { Container, type DisplayObject } from "@thegraid/easeljs-module";
 import { Tile } from "@thegraid/hexlib";
 import { CardShape } from "./card-shape";
@@ -12,21 +12,25 @@ type CARD = {
 
 export class WhistCard extends Tile  {
   static rankSize = 120;
-  // static family = 'SF Compact Rounded Bold'; static fontLead = 0;
+  // static family = 'SF Compact Rounded'; static fontLead = 0;
   // static family = 'Nunito'; static fontLead = 0;
   // static family = 'Futura'; static fontLead = 12; // Futura steps on itself..
-  static family = 'Helvetica Neue'; static fontLead = -14;
-  // static family = 'Fishmonger CS'; static fontLead = 13;
+  // static family = 'DIN Alternate'; static fontLead = -10;
+  static family = 'Arial Narrow'; static fontLead = -4;
+  // static family = 'Trebuchet MS'; static fontLead = -12; // STIX Two Math
+  // static family = 'Times New Roman'; static fontLead = -12; // STIX Two Math
+  // static family = 'Fishmonger CS'; static fontLead = -12;
   static nameFont = (`condensed 500 65px ${WhistCard.family}`); // semibold
   static coinFont = F.fontSpec(80, `${WhistCard.family}`, 'bold');
   // static titleFont = F.fontSpec(36, `${CubeCard.family}`, '800 condensed');
   static titleFont = `36px ${WhistCard.family} bold`;
   static rankFont = F.fontSpec(WhistCard.rankSize, `${WhistCard.family}`, 'condensed');
+  static kernTen = -14;
   static get fnames() {
     return WhistCard.cards.flatMap(card => [card.Aname, `Ninja-${card.Aname}`]);
   }
 
-  static ranks = ['A', '2', '3', '4', '5', '6', '7', '8', '9', '10', 'K'];
+  static ranks = ['A', '1', '10', '2', '3', '4', '5', '6', '7', '8', '9', 'K'];
 
   // four suits:
   static cards: CARD[] = [
@@ -192,14 +196,22 @@ export class WhistCard extends Tile  {
     const bleed = WhistCard.gridSpec.bleed ?? 0;
 
     // show rank (Text) in each corner:
-    const rank = (this.rank == 'j' ? 'J' : this.rank);
-    const dx = bleed + width * (rank !== '10' ? .01 : -.02); // inset text & image from edge of card
-    const rtext = new CenterText(rank, font, C.BLACK); rtext.textAlign = 'left'; rtext.textBaseline = 'top';
-    const rtext2 = new CenterText(rank, font, C.BLACK); rtext2.textAlign = 'left'; rtext2.textBaseline = 'top';
-    const mlh = rtext.getMeasuredLineHeight();
+    const rank = (this.rank == 'j' ? 'J' : this.rank == '10' ? '1' : this.rank);
+    const dx = bleed + (rank !== '1' ? .01 : -.01) * width; // inset text & image from edge of card
+    const mlh = 125; // Math.max(rtext.getMeasuredLineHeight(), 125);
     const dy = bleed + mlh * .05 + WhistCard.fontLead;
-    this.set2corners(rtext, dx, dy, rtext2);
 
+    const tweak1 = new TextTweaks(new NamedContainer('tweak1'));
+    const tweak2 = new TextTweaks(new NamedContainer('tweak2'));
+    const tweaks = { dx, dy, align: 'left', baseline: 'top' } as TWEAKS;
+    const t1 = tweak1.setTextFrag(rank, font, tweaks);
+    const t2 = tweak2.setTextFrag(rank, font, tweaks);
+    if (this.rank == '10') {
+      const kern = t1.getMeasuredWidth() + WhistCard.kernTen;
+      tweak1.setTextFrag('0', font, { ...tweaks, dx: dx + kern })
+      tweak1.setTextFrag('0', font, { ...tweaks, dx: dx + kern })
+    }
+    this.set2corners(tweak1.cont, 0, 0, tweak2.cont);
     // show suitBitmap below each rtext:
     const si = .15; // scale image
     const sImage1 = this.suitBitmap(si, true);
