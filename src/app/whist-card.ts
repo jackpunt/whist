@@ -1,6 +1,6 @@
-import { C, F } from "@thegraid/common-lib";
+import { C, F, type XYWH } from "@thegraid/common-lib";
 import { AliasLoader, ImageGrid, NamedContainer, RectShape, type CountClaz, type GridSpec, type Paintable } from "@thegraid/easeljs-lib";
-import { Container, type DisplayObject } from "@thegraid/easeljs-module";
+import { Container, Graphics, type DisplayObject, type Rectangle } from "@thegraid/easeljs-module";
 import { Tile } from "@thegraid/hexlib";
 import { CardShape } from "./card-shape";
 import { TextTweaks, type TWEAKS } from "./text-tweaks";
@@ -9,6 +9,43 @@ import { TextTweaks, type TWEAKS } from "./text-tweaks";
 type CARD = {
   Aname: string, color: string, ranks: string[],
 };
+
+export class PaintableCont extends NamedContainer implements Paintable {
+  constructor(Aname = '', cx = 0, cy = 0) {
+    super(Aname, cx, cy);
+  }
+  paint(colorn?: string, force?: boolean): Graphics {
+    let rv = new Graphics();
+    this.children.forEach(child => {
+      const pc = child as Paintable;
+      if (typeof pc.paint == 'function') {
+        rv = pc.paint(colorn, force); // capture the last Paintable Graphics
+      }
+    })
+    return rv;
+  }
+
+  calcBounds(): XYWH {
+    const { x, y, width: w, height: h } = this.getBounds();
+    return {x, y, w, h};
+  }
+
+  /** ensure PaintableCont is cached; uses getBounds() ?? calcBounds().
+   *
+   * copied from PaintableShape
+   *
+   * @param scale [1] scale to use if cache is created
+   */
+  setCacheID(scale = 1) {
+    if (this.cacheID) return;  // also: if already cached, get/setBounds is useless
+    let b = this.getBounds() as Pick<Rectangle, 'x' | 'y' | 'width' | 'height'>
+    if (!b) {
+      const { x, y, w, h } = this.calcBounds();
+      b = { x, y, width: w, height: h }
+    }
+    this.cache(b.x, b.y, b.width, b.height, scale);
+  }
+}
 
 export class WhistCard extends Tile  {
   static rankSize = 120;
@@ -30,7 +67,7 @@ export class WhistCard extends Tile  {
     return WhistCard.cards.flatMap(card => [card.Aname, `Ninja-${card.Aname}`]);
   }
 
-  static ranks = ['A', '1', '10', '2', '3', '4', '5', '6', '7', '8', '9', 'K'];
+  static ranks = ['A', '2', '3', '4', '5', '6', '7', '8', '9', '10', 'K'];
 
   // four suits:
   static cards: CARD[] = [
@@ -98,12 +135,23 @@ export class WhistCard extends Tile  {
 
   // WARN: invoked by constructor.super() BEFORE this.color is set
   override makeShape(size = this.radius): Paintable {
-    const bleed = WhistCard.gridSpec.bleed ?? 0
-    return new CardShape(this.mcolor, 'white', size, true, 45, 45); // size, portrait, ss, corner
+    const ss = 45, rr = 45;
+    const s1 = new CardShape(this.mcolor, 'white', size, true, ss, rr); // size, portrait, ss, corner
+    if (false)
+    {
+      // add white rects in corners: [could proly do this with _cgf]
+      const { x, y, width, height } = s1.getBounds();
+      const w = 110, h = 230;
+      const s2 = new RectShape({ x: x + ss / 2, y: y + ss / 2, w, h }, C.WHITE, '');
+      const s3 = new RectShape({ x: x + width - w - ss / 2, y: y + height - h - ss / 2, w, h }, C.WHITE, '');
+      this.addChild(s2, s3);
+    }
+    return s1;
   }
 
   override makeBleed(bleed: number): DisplayObject {
-    const bs = this.baseShape as RectShape;
+    const bs = ((this.baseShape instanceof PaintableCont)
+      ? this.baseShape.getChildAt(0) : this.baseShape) as RectShape;
     const { x, y, w, h } = bs._rect, ss = bs._sSiz+0, b = ss/2 + bleed;
     // enlarge by 'bleed'; add corner radius and stroke size
     const xywhrs = { x: x - b, y: y - b, w: w + b * 2, h: h + b * 2, r: 70, s: ss };
@@ -143,25 +191,26 @@ export class WhistCard extends Tile  {
   }
 
   npips(n = 1, dw = .25) {
-    const r0 = 0, r1 = .30, r2 = .33, r3 = .33, r4 = .09;
-    const a0 = 0, a1 = 0, a2 = 49, a3 = 60, a4 = 90;
+    // const r0 = 0, r1 = .32, r2 = .28, r3 = .25, r4 = .09;
+    const r0 = 0, r1 = .35, r2 = .33, r3 = .33, r4 = .09;
+    const a0 = 0, a2 = 0, a4 = 45, a6 = 60, a8 = 90;
     // { r: radius, a: angle }
     const randx = [
       [{ r: r0 , a: a0 }], // 'A' or 'K' or 'J'
       [{ r: r0 , a: a0 }], // 'A' or 'K' or 'J'
-      [{ r: r1 , a: a1 }, { r: -r1, a: a1 }],  // 2
-      [{ r: r2 , a: -a2 }, { r: -r2 , a: -a2 }, { r: r0 , a: a0 }], // 3
-      [{ r: r2 , a: a2 }, { r: -r2 , a: a2 }, { r: -r2 , a: -a2 }, { r: r2 , a: -a2 }], // 4
-      [{ r: r2 , a: a2 }, { r: -r2 , a: a2 }, { r: -r2 , a: -a2 }, { r: r2 , a: -a2 }, { r: r0 , a: a0 }],
-      [{ r: r2 , a: a3 }, { r: -r2 , a: a3 }, { r: -r2 , a: -a3 }, { r: r2 , a: -a3 }, { r: r2 , a: a1 }, { r: -r2 , a: a1 }], // 6
-      [{ r: r2 , a: a3 }, { r: -r2 , a: a3 }, { r: -r2 , a: -a3 }, { r: r2 , a: -a3 }, { r: r2 , a: a1 }, { r: -r2 , a: a1 }, { r: r0 , a: a0 }], // 7
+      [{ r: r1 , a: a2 }, { r: -r1, a: a2 }],  // 2
+      [{ r: r0 , a: a0 }, { r:  r2, a: -a4 }, { r: -r2, a: -a4 }],  // 3
+      [{ r: r2 , a: a4 }, { r: -r2 , a: a4 }, { r: -r2 , a: -a4 }, { r: r2 , a: -a4 }], // 4
+      [{ r: r2 , a: a4 }, { r: -r2 , a: a4 }, { r: -r2 , a: -a4 }, { r: r2 , a: -a4 }, { r: r0 , a: a0 }],
+      [{ r: r2 , a: a6 }, { r: -r2 , a: a6 }, { r: -r2 , a: -a6 }, { r: r2 , a: -a6 }, { r: r1 , a: a2 }, { r: -r1 , a: a2 }], // 6
+      [{ r: r2 , a: a6 }, { r: -r2 , a: a6 }, { r: -r2 , a: -a6 }, { r: r2 , a: -a6 }, { r: r1 , a: a2 }, { r: -r1 , a: a2 }, { r: r0 , a: a0 }], // 7
 
-      [{ r: r2 , a: a2 }, { r: -r2 , a: a2 }, { r: -r2 , a: -a2 }, { r: r2 , a: -a2 },
-       { r: r3 , a: a0 }, { r: -r3 , a: a0 }, { r: r3 , a: a4 }, { r: -r3 , a: a4 }], // 4
-      [{ r: r2 , a: a2 }, { r: -r2 , a: a2 }, { r: -r2 , a: -a2 }, { r: r2 , a: -a2 },
-       { r: r3 , a: a0 }, { r: -r3 , a: a0 }, { r: r3 , a: a4 }, { r: -r3 , a: a4 }, { r: r0 , a: a0}], // 4
-      [{ r: r2 , a: a2 }, { r: -r2 , a: a2 }, { r: -r2 , a: -a2 }, { r: r2 , a: -a2 },
-       { r: r3 , a: a0 }, { r: -r3 , a: a0 }, { r: r3 , a: a4 }, { r: -r3 , a: a4 }, { r: r4 , a: a0 }, { r: -r4 , a: a0}], // 4
+      [{ r: r2 , a: a4 }, { r: -r2 , a: a4 }, { r: -r2 , a: -a4 }, { r: r2 , a: -a4 },  // 4
+       { r: r1 , a: a2 }, { r: -r1 , a: a2 }, { r: r3 , a: a8 }, { r: -r3 , a: a8 }],   // 8
+      [{ r: r2 , a: a4 }, { r: -r2 , a: a4 }, { r: -r2 , a: -a4 }, { r: r2 , a: -a4 },  // 4
+       { r: r1 , a: a2 }, { r: -r1 , a: a2 }, { r: r3 , a: a8 }, { r: -r3 , a: a8 }, { r: r0 , a: a0}], // 9
+      [{ r: r2 , a: a4 }, { r: -r2 , a: a4 }, { r: -r2 , a: -a4 }, { r: r2 , a: -a4 },  // 4
+       { r: r1 , a: a2 }, { r: -r1 , a: a2 }, { r: r3 , a: a8 }, { r: -r3 , a: a8 }, { r: r4 , a: a2 }, { r: -r4 , a: a2}], // 4
     ] as { r: number, a: number }[][];
     const { width, height } = this.getBounds();
 
@@ -217,8 +266,8 @@ export class WhistCard extends Tile  {
     const sImage1 = this.suitBitmap(si, true);
     const sImage2 = this.suitBitmap(si, true);
     if (sImage1) {
-      const { width, height } = { ...sImage1.getBounds(), width: 800 } // so staff.widht = 800
-      const dx = bleed + si * width / 2.2;           // inset; a bit left of center
+      const { width, height } = sImage1.getBounds();
+      const dx = bleed + si * width / (this.Aname == 'staff' ? 4.5 : 2.2); // inset; a bit left of center
       const dy = bleed + si * height / 6 + mlh ;     // downset image from top of card
       this.set2corners(sImage1, dx, dy, sImage2);
     }
