@@ -1,7 +1,6 @@
 import { ImageGrid, TileExporter as TileExporterLib, type CountClaz, type GridSpec, type PageSpec } from "@thegraid/easeljs-lib";
 import { WhistBack, WhistCard } from "./whist-card";
 import { BidCounter, PointCounter, WhistToken } from "./whist-token";
-import { arrayN } from "@thegraid/common-lib";
 
 // end imports
 
@@ -53,7 +52,7 @@ export class TileExporter extends TileExporterLib {
     const pageSpecs: PageSpec[] = [];
     this.clazToTemplate(whistCards_base_back, WhistCard.gridSpec, pageSpecs);
 
-    // this.clazToTemplate(whistTokens_base, WhistToken.gridSpec, pageSpecs);
+    this.clazToTemplate(whistTokens_base, WhistToken.gridSpec, pageSpecs);
     this.clazToTemplate(whistCards_base, WhistCard.gridSpec, pageSpecs);
 
     return pageSpecs;

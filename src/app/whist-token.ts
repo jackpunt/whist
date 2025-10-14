@@ -6,6 +6,7 @@ import { WhistCard } from "./whist-card";
 
 export class WhistToken extends Tile {
   // 32 tokens (old template holds 4 * 9 = 36 cards)
+  // Each char in string is numeric index into WhistToken.imageNames
   static tokens = [
     '0', '0',
     '1', '2', '3', '4',
@@ -22,6 +23,7 @@ export class WhistToken extends Tile {
       [1, WhistToken, token, ...token.split('').map(c => Number.parseInt(c))]
     );
   }
+  /** image name to load, and suit name in cards */
   static imageNames = [
     'arrows', 'sword', 'staff', 'stars', 'knives', // yellow, grey, purple, blue, red
   ]
@@ -49,15 +51,17 @@ export class WhistToken extends Tile {
   /** add components to this card */
   addImages(chars: string[]) {
     const nums = chars.map(c => Number.parseInt(c));
-    const cardw = WhistToken.gridSpec.cardw!;
+    const cardw = WhistToken.gridSpec.cardw!; // the long direction!
     const n = nums.length;
     const rad = cardw * .1;
     nums.forEach((ndx, nth) => {
-      const color = WhistCard.cmap[WhistCard.cards[ndx].color];
-      const circ = new CircleShape(color, rad*1.2, '');
+      const suit = WhistToken.imageNames[ndx]; // suit name
+      const card = WhistCard.cards.find((card) => card.Aname == suit)!;
+      const color = WhistCard.cmap[card.color];
+      const circ = new CircleShape(color, rad * 1.2, '');
       const bm = this.suitImage(ndx, rad * 2)
       const seq = (nth + 1) / (n + 1) - 1 / 2;
-      circ.y = bm.y = seq * (cardw+rad);
+      circ.y = bm.y = seq * (cardw + rad);
       circ.x = bm.x = 0;
       this.addChild(circ, bm)
     })
