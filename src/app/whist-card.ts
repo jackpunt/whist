@@ -62,6 +62,9 @@ export class WhistCard extends Tile  {
   // static titleFont = F.fontSpec(36, `${CubeCard.family}`, '800 condensed');
   static titleFont = `36px ${WhistCard.family} bold`;
   static rankFont = F.fontSpec(WhistCard.rankSize, `${WhistCard.family}`, 'condensed');
+  static backFont = F.fontSpec(WhistCard.rankSize/2, `${WhistCard.family}`, 'condensed');
+  static ptFont = F.fontSpec(100, `Nunito`, 'normal');
+
   static kernTen = -14;
   static get fnames() {
     return WhistCard.cards.flatMap(card => [card.Aname, `Ninja-${card.Aname}`]);
@@ -69,9 +72,11 @@ export class WhistCard extends Tile  {
 
   static ranks = ['A', '2', '3', '4', '5', '6', '7', '8', '9', '10', 'K'];
 
+  static archers = ['x', 'X'];
+
   // four suits: 800 x 1100; but some images off-center; correct that for tokens
   static cards: CARD[] = [
-    { Aname: 'arrows', color: 'yellow', ranks: ['J', 'j'], y0: 0, },
+    { Aname: 'arrows', color: 'yellow', ranks: this.archers, y0: 0, },
     { Aname: 'sword', color: 'white', ranks: WhistCard.ranks, y0: 0, },
     { Aname: 'staff', color: 'purple', ranks: WhistCard.ranks, y0: 80, },
     { Aname: 'stars', color: 'blue', ranks: WhistCard.ranks, y0: 60, },
@@ -103,6 +108,9 @@ export class WhistCard extends Tile  {
     );
   }
 
+  static A0 = WhistCard.archers[0];
+  static A1 = WhistCard.archers[1];
+
   override get radius() { return WhistCard.gridSpec.cardh ?? 734 } // nextRadius (750 x 1050)
 
   x0 = 0; // offset image
@@ -115,11 +123,10 @@ export class WhistCard extends Tile  {
     width: 3600, height: 5400, nrow: 6, ncol: 3, cardw: 1050, cardh: 750, // (inch_w*dpi + 2*bleed)
     x0: 120 + 3.5 * 150 + 30, y0: 83 + 3.5 * 150 + 30, delx: 1125, dely: 825, bleed: 30, double: false,
   };
-  // static gridSpec = TileExporter.myGrid;
   static gridSpec = ImageGrid.cardSingle_3_5;
 
   /* make specific rank (from desc.ranks) */
-  constructor(desc: CARD, rank = 'J') {
+  constructor(desc: CARD, rank = WhistCard.A1) {
     super(desc.Aname); // cannot inject color directly
     this.color = desc.color;
     this.rank = rank;
@@ -139,8 +146,9 @@ export class WhistCard extends Tile  {
   declare baseShape: RectShape;  // so we can easily extract _sSiz or _rect
   // WARN: invoked by constructor.super() BEFORE this.color is set
   override makeShape(size = this.radius): RectShape {
-    const ss = 45, rr = 45;
-    return new CardShape(this.mcolor, 'white', size, true, ss, rr); // size, portrait, ss, corner
+    const ss = 45, safe = 25, rr = safe + ss / 2, ar = 3.5 / 2.5;
+    // const ss = 45, rr = 45, ar = 3.5 / 2.5; // safe margin is 25px
+    return new CardShape(this.mcolor, 'white', size, ar, ss, rr); // size, portrait, ss, corner
   }
 
   override makeBleed(bleed: number): DisplayObject {
@@ -183,14 +191,14 @@ export class WhistCard extends Tile  {
     return AliasLoader.loader.getBitmap(cname, si * iwide); // offsetReg to center of image!
   }
 
-  npips(n = 1, dw = .25) {
+  npips(n = 1, dw = .20) {
     // const r0 = 0, r1 = .32, r2 = .28, r3 = .25, r4 = .09;
     const r0 = 0, r1 = .35, r2 = .33, r3 = .33, r4 = .09;
     const a0 = 0, a2 = 0, a4 = 45, a6 = 60, a8 = 90;
     // { r: radius, a: angle }
     const randx = [
-      [{ r: r0 , a: a0 }], // 'A' or 'K' or 'J'
-      [{ r: r0 , a: a0 }], // 'A' or 'K' or 'J'
+      [{ r: r0 , a: a0 }], // 0: filler
+      [{ r: r0 , a: a0 }], // 1: face card: aces, kings, archers
       [{ r: r1 , a: a2 }, { r: -r1, a: a2 }],  // 2
       [{ r: r0 , a: a0 }, { r:  r2, a: -a4 }, { r: -r2, a: -a4 }],  // 3
       [{ r: r2 , a: a4 }, { r: -r2 , a: a4 }, { r: -r2 , a: -a4 }, { r: r2 , a: -a4 }], // 4
@@ -220,13 +228,14 @@ export class WhistCard extends Tile  {
   }
 
   addPips() {
-    const dw = ((this.rank == 'A' || this.rank == 'j') ? .5 : (this.rank == 'K' || this.rank == 'J') ? .68 : .20);
+    const dw = ((this.rank == 'A' || this.rank == WhistCard.A0) ? .5
+      : (this.rank == 'K' || this.rank == WhistCard.A1) ? .68 : .20);
     const bmImage = this.suitBitmap(dw);
     if (bmImage) {
       if (dw > .3) {
-        this.addChild(bmImage); // TODO: maybe make 'pips' with smaller image (except K & A)
+        this.addChild(bmImage);
       } else {
-        this.npips(Number.parseInt(this.rank), dw)
+        this.npips(Number.parseInt(this.rank), dw); // pips are smaller
       }
     }
   }
@@ -242,7 +251,7 @@ export class WhistCard extends Tile  {
     const width = this.getBounds().width;
 
     // show rank (Text) in each corner:
-    const rank = (this.rank == 'j' ? 'J' : this.rank == '10' ? '1' : this.rank);
+    const rank = (this.rank == '10' ? '1' : this.rank);
 
     // show suitBitmap icon below each rtext:
     const sImage1 = this.suitBitmap(si, true);

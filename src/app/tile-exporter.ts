@@ -1,6 +1,7 @@
 import { ImageGrid, TileExporter as TileExporterLib, type CountClaz, type GridSpec, type PageSpec } from "@thegraid/easeljs-lib";
+import { TP } from "@thegraid/hexlib";
 import { WhistBack, WhistCard } from "./whist-card";
-import { BidCounter, PointCounter, WhistToken } from "./whist-token";
+import { BidCounter, BonusBack, PointCounter, PointsBack, WhistToken } from "./whist-token";
 
 // end imports
 
@@ -26,6 +27,7 @@ export class TileExporter extends TileExporterLib {
 
   constructor() {
     super();
+    TP.cacheTiles = 0;
     // this.cardCountAry = [this.namesSmall];
   }
 
@@ -37,22 +39,39 @@ export class TileExporter extends TileExporterLib {
   override makeImagePages() {
     // [...[count, claz, ...constructorArgs]]
     const whistCards_base_back = [
-      [8, WhistBack, 'Back' ],
+      [18, WhistBack, 'Back' ],
     ] as CountClaz[];
     const whistCards_base = [
       ...WhistCard.allCards(),
     ] as CountClaz[];
 
-    const whistTokens_base = [
-      [8, PointCounter, 'Points'], // [1, .., 10]
-      [4, BidCounter, 'BidFront', '0', '1', '2', '3'],
-      [4, BidCounter, 'BidBack', '4', '5', '6', '7'],
-      ...WhistToken.allTokens(),
+    const whistTokens_counters = [
+      [15, PointCounter, 'Points'], // [1, .., 10]
+      [10, BidCounter, 'BidFront', '0', '1', '2', '3'],
+      ...WhistToken.allTokens(30, 32),
+    ] as CountClaz[];
+
+    const whistTokens_counter_back = [
+      [15, PointsBack, 'PointsBack', 'point\ncounter', '<', '^', '<<', '^^'],
+      [10, BidCounter, 'BidBack', '4', '5', '6', '7'],
+      [2, BonusBack, 'bonusBack', `Trick Bonus`],
+    ] as CountClaz[];
+
+    const whistTokens_front = [
+      ...WhistToken.allTokens(0, 30),
+    ] as CountClaz[];
+
+    const whistTokens_back = [
+      [30, BonusBack, 'bonusBack', 'Trick Bonus'],
     ] as CountClaz[];
     const pageSpecs: PageSpec[] = [];
-    this.clazToTemplate(whistCards_base_back, WhistCard.gridSpec, pageSpecs);
+    this.clazToTemplate(whistTokens_counters, WhistToken.gridSpec, pageSpecs);
+    this.clazToTemplate(whistTokens_counter_back, WhistToken.gridSpec, pageSpecs);
 
-    this.clazToTemplate(whistTokens_base, WhistToken.gridSpec, pageSpecs);
+    this.clazToTemplate(whistTokens_front, WhistToken.gridSpec, pageSpecs);
+    this.clazToTemplate(whistTokens_back, WhistToken.gridSpec, pageSpecs);
+
+    this.clazToTemplate(whistCards_base_back, WhistCard.gridSpec, pageSpecs);
     this.clazToTemplate(whistCards_base, WhistCard.gridSpec, pageSpecs);
 
     return pageSpecs;
