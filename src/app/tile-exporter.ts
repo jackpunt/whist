@@ -1,11 +1,9 @@
 import { ImageGrid, TileExporter as TileExporterLib, type CountClaz, type GridSpec, type PageSpec } from "@thegraid/easeljs-lib";
 import { TP } from "@thegraid/hexlib";
+import { GtrCard } from "../../../gtr/src/app/gtr-card";
+import { SpecialDead } from "./special-dead";
 import { WhistBack, WhistCard } from "./whist-card";
 import { BidCounter, BonusBack, PointCounter, PointsBack, WhistToken } from "./whist-token";
-import { GtrTileExporter } from "../../../gtr/src/app/tile-exporter";
-import { GtrCard } from "../../../gtr/src/app/gtr-card";
-import { stime } from "@thegraid/common-lib";
-import type { Container, DisplayObject } from "@thegraid/easeljs-module";
 
 // end imports
 
@@ -72,13 +70,15 @@ export class TileExporter extends TileExporterLib {
       [15, PointCounter, 'Points'], // [1, .., 10]
       [8, BidCounter, 'BidFront', '0', '1', '2', '3'],
       ...WhistToken.allTokens(30, 32),
+      [5, SpecialDead, 'Special', 525],
     ] as CountClaz[];
 
     const whistTokens_counter_back = [
-      [15, PointsBack, 'PointsBack', 'point\ncounter', '<', '^', '<<', '^^'],
+      [15, PointsBack, 'PointsBack', 'point\ncounter'],
       [5, BidCounter, 'BidBack', '4', '5', '6', '7'],
       [2, BonusBack, 'bonusBack', `Trick Bonus`],
       [3, BidCounter, 'BidBack', '4', '5', '6', '7'],
+      [5, SpecialDead, 'Special', 525],
     ] as CountClaz[];
 
     const whistTokens_front = [
