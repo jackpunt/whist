@@ -1,5 +1,11 @@
 # See https://docs.github.com/get-started/getting-started-with-git/ignoring-files for more about ignoring files.
 
+# GtR images
+/src/assets/images/Player\ Aid.png
+/src/assets/images/Player\ Aid2.png
+/src/assets/images/GtrLeaderCard.png
+/src/assets/images/Odd-000-Jack.png
+
 # Compiled output
 /dist
 /tmp
