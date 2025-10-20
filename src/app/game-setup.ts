@@ -20,7 +20,7 @@ class NullGameSetup extends GameSetupLib {
     this.tileExporter = new tileExp(); // enable 'Make Pages' buttons
   }
 
-  tileExporter = new TileExporter(); // enable 'Make Pages' buttons
+  tileExporter: TileExporter; // enable 'Make Pages' buttons
 
   override initialize(canvasId: string): void {
     console.log(stime(this, `---------------------   GameSetup.initialize  ----------------`))
@@ -29,7 +29,8 @@ class NullGameSetup extends GameSetupLib {
   }
 
   override loadImagesThenStartup() {
-    AliasLoader.loader.fnames = WhistCard.fnames;
+    const gtrCards = ['Player Aid', 'Player Aid2', 'GtrLeaderCard', 'Odd-000-Jack'];
+    AliasLoader.loader.fnames = [...WhistCard.fnames, ...gtrCards];
     super.loadImagesThenStartup();    // loader.loadImages(() => this.startup(qParams));
   }
 
