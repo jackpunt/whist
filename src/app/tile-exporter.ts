@@ -2,7 +2,7 @@ import { ImageGrid, TileExporter as TileExporterLib, type CountClaz, type GridSp
 import { TP } from "@thegraid/hexlib";
 import { GtrCard } from "../../../gtr/src/app/gtr-card";
 import { SpecialDead } from "./special-dead";
-import { WhistBack, WhistCard } from "./whist-card";
+import { RuleCard, WhistBack, WhistCard } from "./whist-card";
 import { BidCounter, BonusBack, PointCounter, PointsBack, WhistToken } from "./whist-token";
 
 // end imports
@@ -13,29 +13,17 @@ type CardCount = Record<string, number>;
 /** multi-format TileExporter base class */
 export class TileExporter extends TileExporterLib {
 
-  /** for home printer 8x10 @ 300dpi = 2400 x 3000, no space between */
-  static euroPoker2: GridSpec = {
-    width: 2400, height: 3000, nrow: 4, ncol: 2, cardw: 1040, cardh: 734, double: false,
-    x0: 60 + 1040/2, y0: 25 + 734/2, delx: 1122.5, dely: 734, bleed: 30, bgColor: 'white',
-  }
-  static fourUp: GridSpec = {
-    width: 2600, height: 3600, nrow: 3, ncol: 3, cardh: 1040, cardw: 734, double: false,
-    y0: 60 + 1040/2, x0: 85 + 734/2, dely: 1122.5, delx: 814, bleed: 30, bgColor: 'white',
-  }
-
-  static myGrid: GridSpec = ImageGrid.cardSingle_3_5;
-  pageNames: string[] = [];
-
   constructor() {
-    super();
+    super(); // creates this.imageGrid; setButton --> makeImagePages()
     TP.cacheTiles = 0;
   }
 
   // TODO: extra cards for cursus incl: tableau layouts, player aides for GtR,
-  // whist[44] A-2-10-K, 17x PointCounter, 9x[0-7 BidCounter], trick-bonus [32]
-  // 46 + (32+17+9)/2 =  46 + 29 = 75 < 75;
+  // whist[44] A-2-10-K, 15x PointCounter, 8x[0-7 BidCounter], trick-bonus [32]
+  // 46 + (32+15+8)/2 =  46 + 27 = 73 < 75;
   // TODO: border around card
 
+  /** invoked from button click: "MakePage" */
   override makeImagePages() {
     const width = WhistCard.gridSpec.cardh ?? 750, r180 = 180;
     const allCards = WhistCard.allCards();
@@ -50,16 +38,18 @@ export class TileExporter extends TileExporterLib {
     ] as CountClaz[];
 
     const mixedFront = [
-      // ...allCards.slice(36),
-      [2, GtrCard, 'GtrLeaderCard', width],
-      [1, GtrCard, 'Odd-000-Jack', width],
-      [5, GtrCard, 'Player Aid', width],
+      // ...allCards.slice(36, 46),    // 3 rows, left
+      [1, RuleCard, 'rules', width],   // center
+      [1, GtrCard, 'GtrLeaderCard', width], // right
+      [1, GtrCard, 'Odd-000-Jack', width],  // left
+      [5, GtrCard, 'Player Aid', width],   // center, right, row
     ] as CountClaz[];
 
     const mixedBacks = [
-      [9, WhistBack, 'Back'],
-      [2, GtrCard, 'GtrLeaderCard', width, r180],
-      [1, WhistBack, 'Back'],
+      [9, WhistBack, 'Back'], // 3 rows
+      [1, GtrCard, 'GtrLeaderCard', width, r180], // left
+      [1, RuleCard, 'rule back', width],  // center
+      [1, WhistBack, 'Back'], // right
       [2, GtrCard, 'Player Aid2', width, r180],
       [1, GtrCard, 'Odd-000-Jack', width, r180],
       [3, GtrCard, 'Player Aid2', width, r180],
@@ -89,11 +79,11 @@ export class TileExporter extends TileExporterLib {
       [30, BonusBack, 'bonusBack', 'Trick Bonus'],
     ] as CountClaz[];
     const pageSpecs: PageSpec[] = [];
-    this.clazToTemplateN(whistTokens_counters, WhistToken.gridSpec, pageSpecs, 'counters'); // TODO: include columns 4-color
-    this.clazToTemplateN(whistTokens_counter_back, WhistToken.gridSpec, pageSpecs, 'counter_back');
+    // this.clazToTemplateN(whistTokens_counters, WhistToken.gridSpec, pageSpecs, 'counters'); // TODO: include columns 4-color
+    // this.clazToTemplateN(whistTokens_counter_back, WhistToken.gridSpec, pageSpecs, 'counter_back');
 
-    this.clazToTemplateN(whistTokens_front, WhistToken.gridSpec, pageSpecs, 'tokens');
-    this.clazToTemplateN(whistTokens_back, WhistToken.gridSpec, pageSpecs, 'token_backs');
+    // this.clazToTemplateN(whistTokens_front, WhistToken.gridSpec, pageSpecs, 'tokens');
+    // this.clazToTemplateN(whistTokens_back, WhistToken.gridSpec, pageSpecs, 'token_backs');
 
     // this.clazToTemplate(whistCards_back, WhistCard.gridSpec, pageSpecs, 'card_backs');
     this.clazToTemplateN([...whistCards], WhistCard.gridSpec, pageSpecs, 'cards', true);
@@ -105,6 +95,7 @@ export class TileExporter extends TileExporterLib {
     return pageSpecs;
   }
 
+  /** compose 'Claz' objects, add them to stage->canvas, according to GridSpec; record in PageSpec */
   clazToTemplateN(countClaz: CountClaz[], gridSpec?: GridSpec, pageSpecs: PageSpec[] = [], pageName = '', open = false): PageSpec[] {
     const zth = pageSpecs?.length ?? 0;
     const psa = this.clazToTemplate(countClaz, gridSpec, pageSpecs, open);
