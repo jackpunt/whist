@@ -85,7 +85,6 @@ export class TileExporter extends TileExporterLib {
     // this.clazToTemplateN(whistTokens_front, WhistToken.gridSpec, pageSpecs, 'tokens');
     // this.clazToTemplateN(whistTokens_back, WhistToken.gridSpec, pageSpecs, 'token_backs');
 
-    // this.clazToTemplate(whistCards_back, WhistCard.gridSpec, pageSpecs, 'card_backs');
     this.clazToTemplateN([...whistCards], WhistCard.gridSpec, pageSpecs, 'cards', true);
     this.clazToTemplateN([...mixedFront], WhistCard.gridSpec, pageSpecs, 'mixed');
 
