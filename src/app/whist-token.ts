@@ -79,6 +79,12 @@ export class WhistToken extends Tile {
     this.addImages(chars)
   }
 
+  /**
+   * return the scaled icon image (no Ninjas)
+   * @param n index into imageNames
+   * @param w width of scaled image
+   * @returns Bitmap
+   */
   suitImage(n: number, w = 50) {
     const name = WhistToken.imageNames[n];
     const bitmap = AliasLoader.loader.getBitmap(name, w);

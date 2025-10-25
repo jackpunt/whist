@@ -1,8 +1,9 @@
-import { ImageGrid, TileExporter as TileExporterLib, type CountClaz, type GridSpec, type PageSpec } from "@thegraid/easeljs-lib";
+import { AliasLoader, TileExporter as TileExporterLib, type CountClaz, type GridSpec, type PageSpec } from "@thegraid/easeljs-lib";
 import { TP } from "@thegraid/hexlib";
 import { GtrCard } from "../../../gtr/src/app/gtr-card";
 import { SpecialDead } from "./special-dead";
-import { RuleCard, WhistBack, WhistCard } from "./whist-card";
+import { TuckboxMaker } from "./tuckbox";
+import { LogoText, RuleCard, WhistBack, WhistCard } from "./whist-card";
 import { BidCounter, BonusBack, PointCounter, PointsBack, WhistToken } from "./whist-token";
 
 // end imports
@@ -12,9 +13,9 @@ type CardCount = Record<string, number>;
 
 /** multi-format TileExporter base class */
 export class TileExporter extends TileExporterLib {
-
+  // tbe = new TuckboxExporter();
   constructor() {
-    super(); // creates this.imageGrid; setButton --> makeImagePages()
+    super(TuckboxMaker); // creates this.imageGrid; setButton --> makeImagePages()
     TP.cacheTiles = 0;
   }
 
@@ -85,13 +86,33 @@ export class TileExporter extends TileExporterLib {
     // this.clazToTemplateN(whistTokens_front, WhistToken.gridSpec, pageSpecs, 'tokens');
     // this.clazToTemplateN(whistTokens_back, WhistToken.gridSpec, pageSpecs, 'token_backs');
 
-    this.clazToTemplateN([...whistCards], WhistCard.gridSpec, pageSpecs, 'cards', true);
-    this.clazToTemplateN([...mixedFront], WhistCard.gridSpec, pageSpecs, 'mixed');
+    // this.clazToTemplateN([...whistCards], WhistCard.gridSpec, pageSpecs, 'cards', true);
+    // this.clazToTemplateN([...mixedFront], WhistCard.gridSpec, pageSpecs, 'mixed');
 
-    this.clazToTemplateN(mixedBacks, WhistCard.gridSpec, pageSpecs, 'mixed_backs');
-    this.clazToTemplateN(whistCards_back, WhistCard.gridSpec, pageSpecs, 'card_backs');
-    // TODO: set spec.basename
+    // this.clazToTemplateN(mixedBacks, WhistCard.gridSpec, pageSpecs, 'mixed_backs');
+    // this.clazToTemplateN(whistCards_back, WhistCard.gridSpec, pageSpecs, 'card_backs');
+
+    this.makeTuckbox(pageSpecs); // add another canvas/page of objects
     return pageSpecs;
+  }
+
+  toTuckbox(pageSpecs: PageSpec[]) {
+
+  }
+
+  makeTuckbox(pageSpecs: PageSpec[]) {
+    const spec = TuckboxMaker.poker_75, s = spec.safe ?? 20;
+    const front = AliasLoader.loader.getBitmap('Ninja-stars', spec.front.h - 2 * s);
+    const back = AliasLoader.loader.getBitmap('Ninja-arrows', spec.back.h - 2 * s);
+    const left = new LogoText(Math.min(spec.left.w, spec.front.h) - 2 * s);
+    const right = new LogoText(Math.min(spec.right.w, spec.back.h) - 2 * s);
+    const top  = new LogoText(spec.top.h - 2 * s)
+    const bottom  = new LogoText(spec.bottom.h - 2 * s)
+    const tbArgs = {
+      front, back, left, right, top, bottom,
+    };
+    (this.imageGrid as TuckboxMaker).tuckboxToTemplate(tbArgs, spec, pageSpecs)
+
   }
 
   /** compose 'Claz' objects, add them to stage->canvas, according to GridSpec; record in PageSpec */

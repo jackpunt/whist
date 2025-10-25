@@ -297,9 +297,16 @@ export class LogoText extends Container {
 
   constructor(width = 300) {
     super();
-    const tweaks = { align: 'center', baseline: 'middle' } as TWEAKS;
-    this.tweaker.setTextFrag('Ninja', LogoText.ninjaFont, { color: this.ninjaColor, dy: .33 * width, rotation: -100, ...tweaks });
-    this.tweaker.setTextFrag('whist', LogoText.whistFont, { color: this.whistColor, dy: -.31 * width, rotation: -90, ...tweaks });
+    const tweaks = { align: 'left', baseline: 'middle' } as TWEAKS;
+    const t1 = this.tweaker.setTextFrag('Ninja ', LogoText.ninjaFont, { color: this.ninjaColor, rotation: -100, ...tweaks });
+    const t2 = this.tweaker.setTextFrag('Whist', LogoText.whistFont, { color: this.whistColor, rotation: -90, ...tweaks });
+    const {  width: t1w } = t1.getBounds();
+    const {  width: t2w } = t2.getBounds();
+    const tw = t1w + t2w;
+    t1.y = tw / 2;
+    t2.y = t1.y - t1w;
+    const scale = width / tw;
+    this.scaleX = this.scaleY = scale;
   }
 }
 
