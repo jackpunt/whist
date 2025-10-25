@@ -1,8 +1,9 @@
-import { AliasLoader, TileExporter as TileExporterLib, type CountClaz, type GridSpec, type PageSpec } from "@thegraid/easeljs-lib";
+import { AliasLoader, NamedContainer, RectShape, TileExporter as TileExporterLib, type CountClaz, type GridSpec, type PageSpec } from "@thegraid/easeljs-lib";
+import type { Bitmap } from "@thegraid/easeljs-module";
 import { TP } from "@thegraid/hexlib";
 import { GtrCard } from "../../../gtr/src/app/gtr-card";
 import { SpecialDead } from "./special-dead";
-import { TuckboxMaker } from "./tuckbox";
+import { TuckboxMaker, type Geom, type TuckSpec } from "./tuckbox";
 import { LogoText, RuleCard, WhistBack, WhistCard } from "./whist-card";
 import { BidCounter, BonusBack, PointCounter, PointsBack, WhistToken } from "./whist-token";
 
@@ -86,7 +87,7 @@ export class TileExporter extends TileExporterLib {
     // this.clazToTemplateN(whistTokens_front, WhistToken.gridSpec, pageSpecs, 'tokens');
     // this.clazToTemplateN(whistTokens_back, WhistToken.gridSpec, pageSpecs, 'token_backs');
 
-    // this.clazToTemplateN([...whistCards], WhistCard.gridSpec, pageSpecs, 'cards', true);
+    this.clazToTemplateN([...whistCards], WhistCard.gridSpec, pageSpecs, 'cards', true);
     // this.clazToTemplateN([...mixedFront], WhistCard.gridSpec, pageSpecs, 'mixed');
 
     // this.clazToTemplateN(mixedBacks, WhistCard.gridSpec, pageSpecs, 'mixed_backs');
@@ -96,14 +97,23 @@ export class TileExporter extends TileExporterLib {
     return pageSpecs;
   }
 
-  toTuckbox(pageSpecs: PageSpec[]) {
-
-  }
-
   makeTuckbox(pageSpecs: PageSpec[]) {
-    const spec = TuckboxMaker.poker_75, s = spec.safe ?? 20;
-    const front = AliasLoader.loader.getBitmap('Ninja-stars', spec.front.h - 2 * s);
-    const back = AliasLoader.loader.getBitmap('Ninja-arrows', spec.back.h - 2 * s);
+    const bgImg = (spec: TuckSpec, key: keyof TuckSpec, img: Bitmap, bgColor: string) => {
+      const geom = spec[key] as Geom;
+      const { w, h, rot } = geom, s = (spec.safe ?? 25); // reduce by only s/2
+      const rect = new RectShape({ x: s / 2, y: s / 2, w: w - s, h: h - s, r: s + 5 }, bgColor, '')
+      rect.regX = w / 2;
+      rect.regY = h / 2;
+      rect.rotation = rot ?? 0;
+      const cont = new NamedContainer('img')
+      cont.addChild(rect, img)
+      return cont;
+    }
+    const spec = TuckboxMaker.poker_75, s = spec.safe ?? 25;
+    const ifront = AliasLoader.loader.getBitmap('Ninja-stars', spec.front.h - 2 * s);
+    const front = bgImg(spec, 'front', ifront, WhistCard.cmap['blue'])
+    const iback = AliasLoader.loader.getBitmap('Ninja-arrows', spec.back.h - 2 * s);
+    const back = bgImg(spec, 'back', iback, WhistCard.cmap['yellow'])
     const left = new LogoText(Math.min(spec.left.w, spec.front.h) - 2 * s);
     const right = new LogoText(Math.min(spec.right.w, spec.back.h) - 2 * s);
     const top  = new LogoText(spec.top.h - 2 * s)

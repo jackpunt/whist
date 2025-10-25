@@ -1,5 +1,5 @@
-import type { XYWH } from "@thegraid/common-lib";
-import { ImageGrid, LayoutSpec, NamedContainer, type PageSpec } from "@thegraid/easeljs-lib";
+import { C, type XYWH } from "@thegraid/common-lib";
+import { ImageGrid, LayoutSpec, NamedContainer, RectShape, type PageSpec } from "@thegraid/easeljs-lib";
 import { type DisplayObject } from "@thegraid/easeljs-module";
 
 // Tuckbox is like a Card/Tile -- a collection of dobjs/images stacked to get cut onto a cardboard.
@@ -8,7 +8,7 @@ import { type DisplayObject } from "@thegraid/easeljs-module";
 
 // TuckGeom is more like CardShape: how to make single instance
 // TuckSpec is maybe like GridSpec? but assembles a single tuckbox, not an array of Card?
-type Geom = XYWH & { rot?: number }
+export type Geom = XYWH & { rot?: number }
 // the layout of the various components of a tuckbox:
 type TuckGeom =  {
   front: Geom;
@@ -27,7 +27,7 @@ type TuckArgs = Partial<Record<keyof(TuckGeom), DisplayObject>>
 export class TuckboxMaker extends ImageGrid {
 
   static poker_75: TuckSpec = {
-    width: 5400, height: 3600, bleed: 30, safe: 30,
+    width: 5400, height: 3600, bleed: 30, safe: 30, bgColor: 'white',
 
     right: { x: 1300, y: 545, w: 2395 - 1300, h: 847 - 545 }, // 1095 x 302
     back: { x: 1300, y: 847, w: 2395 - 1300, h: 1612 - 847, rot: 90 }, // 1095 x 765
@@ -46,6 +46,10 @@ export class TuckboxMaker extends ImageGrid {
     keys.forEach(key => {
       const { x, y, w, h, rot } = spec[key]; // placement of component '$key'
       const landscape = (w >= h);   // target slot is landscape
+      const fillc = C.transparent;
+      const strokec = (key == 'front' || key == 'back') ? 'blue' : 'cyan';
+      const box = new RectShape({ x, y, w, h, s: 1 }, fillc, strokec)
+      // frontObjs.push(box)
       const dobj = args[key]!; // assert: dobj is self-centered; for placement and rotation
       dobj.x = x + w / 2;
       dobj.y = y + h / 2;
