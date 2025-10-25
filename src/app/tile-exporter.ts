@@ -60,16 +60,16 @@ export class TileExporter extends TileExporterLib {
 
     const whistTokens_counters = [
       [15, PointCounter, 'Points'], // [1, .., 10]
-      [8, BidCounter, 'BidFront', '0', '1', '2', '3'],
+      [8, BidCounter, 'Bid', '0', '4', '2', '6'],
       ...WhistToken.allTokens(30, 32),
       [5, SpecialDead, 'Special', 525],
     ] as CountClaz[];
 
     const whistTokens_counter_back = [
-      [15, PointsBack, 'PointsBack', 'point\ncounter'],
-      [5, BidCounter, 'BidBack', '4', '5', '6', '7'],
+      [15, PointsBack, 'PointsBack', 'Points\n(x 10)'],
+      [5, BidCounter, 'BidBack', '1', '5', '3', '7'],
       [2, BonusBack, 'bonusBack', `Trick Bonus`],
-      [3, BidCounter, 'BidBack', '4', '5', '6', '7'],
+      [3, BidCounter, 'BidBack', '1', '5', '3', '7'],
       [5, SpecialDead, 'Special', 525],
     ] as CountClaz[];
 
@@ -81,39 +81,26 @@ export class TileExporter extends TileExporterLib {
       [30, BonusBack, 'bonusBack', 'Trick Bonus'],
     ] as CountClaz[];
     const pageSpecs: PageSpec[] = [];
-    // this.clazToTemplateN(whistTokens_counters, WhistToken.gridSpec, pageSpecs, 'counters'); // TODO: include columns 4-color
-    // this.clazToTemplateN(whistTokens_counter_back, WhistToken.gridSpec, pageSpecs, 'counter_back');
+    this.clazToTemplateN(whistTokens_counters, WhistToken.gridSpec, pageSpecs, 'counters'); // TODO: include columns 4-color
+    this.clazToTemplateN(whistTokens_counter_back, WhistToken.gridSpec, pageSpecs, 'counter_back');
 
-    // this.clazToTemplateN(whistTokens_front, WhistToken.gridSpec, pageSpecs, 'tokens');
-    // this.clazToTemplateN(whistTokens_back, WhistToken.gridSpec, pageSpecs, 'token_backs');
+    this.clazToTemplateN(whistTokens_front, WhistToken.gridSpec, pageSpecs, 'tokens');
+    this.clazToTemplateN(whistTokens_back, WhistToken.gridSpec, pageSpecs, 'token_backs');
 
     this.clazToTemplateN([...whistCards], WhistCard.gridSpec, pageSpecs, 'cards', true);
-    // this.clazToTemplateN([...mixedFront], WhistCard.gridSpec, pageSpecs, 'mixed');
+    this.clazToTemplateN([...mixedFront], WhistCard.gridSpec, pageSpecs, 'mixed');
 
-    // this.clazToTemplateN(mixedBacks, WhistCard.gridSpec, pageSpecs, 'mixed_backs');
-    // this.clazToTemplateN(whistCards_back, WhistCard.gridSpec, pageSpecs, 'card_backs');
+    this.clazToTemplateN(mixedBacks, WhistCard.gridSpec, pageSpecs, 'mixed_backs');
+    this.clazToTemplateN(whistCards_back, WhistCard.gridSpec, pageSpecs, 'card_backs');
 
     this.makeTuckbox(pageSpecs); // add another canvas/page of objects
     return pageSpecs;
   }
 
   makeTuckbox(pageSpecs: PageSpec[]) {
-    const bgImg = (spec: TuckSpec, key: keyof TuckSpec, img: Bitmap, bgColor: string) => {
-      const geom = spec[key] as Geom;
-      const { w, h, rot } = geom, s = (spec.safe ?? 25); // reduce by only s/2
-      const rect = new RectShape({ x: s / 2, y: s / 2, w: w - s, h: h - s, r: s + 5 }, bgColor, '')
-      rect.regX = w / 2;
-      rect.regY = h / 2;
-      rect.rotation = rot ?? 0;
-      const cont = new NamedContainer('img')
-      cont.addChild(rect, img)
-      return cont;
-    }
     const spec = TuckboxMaker.poker_75, s = spec.safe ?? 25;
-    const ifront = AliasLoader.loader.getBitmap('Ninja-stars', spec.front.h - 2 * s);
-    const front = bgImg(spec, 'front', ifront, WhistCard.cmap['blue'])
-    const iback = AliasLoader.loader.getBitmap('Ninja-arrows', spec.back.h - 2 * s);
-    const back = bgImg(spec, 'back', iback, WhistCard.cmap['yellow'])
+    const front = new WhistCard({ Aname: 'stars', color: 'blue', ranks: ['K'], y0: 0, }, 'K')
+    const back = new WhistCard({ Aname: 'arrows', color: 'yellow', ranks: ['X'], y0: 0, })
     const left = new LogoText(Math.min(spec.left.w, spec.front.h) - 2 * s);
     const right = new LogoText(Math.min(spec.right.w, spec.back.h) - 2 * s);
     const top  = new LogoText(spec.top.h - 2 * s)

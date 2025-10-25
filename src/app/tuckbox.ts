@@ -27,7 +27,7 @@ type TuckArgs = Partial<Record<keyof(TuckGeom), DisplayObject>>
 export class TuckboxMaker extends ImageGrid {
 
   static poker_75: TuckSpec = {
-    width: 5400, height: 3600, bleed: 30, safe: 30, bgColor: 'white',
+    width: 5400, height: 3600, bleed: 30, safe: 30, // bgColor: 'white',
 
     right: { x: 1300, y: 545, w: 2395 - 1300, h: 847 - 545 }, // 1095 x 302
     back: { x: 1300, y: 847, w: 2395 - 1300, h: 1612 - 847, rot: 90 }, // 1095 x 765

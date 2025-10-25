@@ -165,7 +165,7 @@ export class PointsBack extends WhistToken {
   addStrings(strings: string[]) {
     const { x, y, width, height } = this.getBounds();
     const backText = strings[0];
-    const font = WhistCard.rankFont;
+    const font = WhistCard.ptFont;
     const backFont = WhistCard.backFont;
     const tweaks = { align: 'center', baseline: 'bottom' } as TWEAKS; // with newline: 'bottom'
     this.tweaker.setTextFrag(backText, font, { color: 'black', dx: .005 * width, rotation: -90, ...tweaks });
