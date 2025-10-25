@@ -41,35 +41,35 @@ export class TileExporter extends TileExporterLib {
 
     const mixedFront = [
       // ...allCards.slice(36, 46),    // 3 rows, left
-      [1, RuleCard, 'rules', width],   // center
+      [2, RuleCard, 'rules', width],   // center
+      // [1, GtrCard, 'Odd-000-Jack', width],  // left
       [1, GtrCard, 'GtrLeaderCard', width], // right
-      [1, GtrCard, 'Odd-000-Jack', width],  // left
       [5, GtrCard, 'Player Aid', width],   // center, right, row
     ] as CountClaz[];
 
     const mixedBacks = [
       [9, WhistBack, 'Back'], // 3 rows
-      [1, GtrCard, 'GtrLeaderCard', width, r180], // left
-      [1, RuleCard, 'rule back', width],  // center
+      // [1, GtrCard, 'Odd-000-Jack', width, r180],
+      [2, RuleCard, 'rule back', width],  // center
       [1, WhistBack, 'Back'], // right
       [2, GtrCard, 'Player Aid2', width, r180],
-      [1, GtrCard, 'Odd-000-Jack', width, r180],
+      [1, GtrCard, 'GtrLeaderCard', width, r180], // left
       [3, GtrCard, 'Player Aid2', width, r180],
     ] as CountClaz[];
 
 
     const whistTokens_counters = [
       [15, PointCounter, 'Points'], // [1, .., 10]
-      [8, BidCounter, 'Bid', '0', '4', '2', '6'],
+      [8, BidCounter, 'Bid', '0', '2', '4', '6'],
       ...WhistToken.allTokens(30, 32),
       [5, SpecialDead, 'Special', 525],
     ] as CountClaz[];
 
     const whistTokens_counter_back = [
       [15, PointsBack, 'PointsBack', 'Points\n(x 10)'],
-      [5, BidCounter, 'BidBack', '1', '5', '3', '7'],
+      [5, BidCounter, 'BidBack', '1', '3', '5', '7'],
       [2, BonusBack, 'bonusBack', `Trick Bonus`],
-      [3, BidCounter, 'BidBack', '1', '5', '3', '7'],
+      [3, BidCounter, 'BidBack', '1', '3', '5', '7'],
       [5, SpecialDead, 'Special', 525],
     ] as CountClaz[];
 

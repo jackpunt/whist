@@ -64,7 +64,7 @@ export class WhistCard extends Tile  {
   static rankFont = F.fontSpec(WhistCard.rankSize, `${WhistCard.family}`, 'condensed');
   static backFont = F.fontSpec(WhistCard.rankSize/2, `${WhistCard.family}`, 'condensed');
   static ptFont = F.fontSpec(100, `Nunito`, 'normal');
-  static ruleFont = F.fontSpec(60, `${WhistCard.family}`, 'condensed');
+  static ruleFont = F.fontSpec(50, `${WhistCard.family}`, 'condensed');
 
   static kernTen = -14;
   static get fnames() {
@@ -330,20 +330,25 @@ export class RuleCard extends WhistCard {
 
   override addComponents(): void {
     const font = WhistCard.ruleFont;
-    const mlh = new CenterText('A', font).getMeasuredLineHeight(); //
+    const mlh = new CenterText('A', font).getMeasuredLineHeight(); // paragraph break
     const tweaker = new TextTweaks(this);
-    const {width, height} = this.getBounds();
-    const top = -height / 2;
-    const twk = { align: 'left', dx: -width / 2 } as TWEAKS;
+    const { width, height } = this.getBounds(), safe = 25;
+    const twk = { align: 'left', dx: safe - width / 2, nlh: mlh+8 } as TWEAKS;
     const rules = [
       { text: 'Rules:', tweaks: { ...twk, align: 'center', dx: 0} },
-      { text: '2. line2', tweaks: twk },
-      { text: '3. rule3', tweaks: twk },
-      { text: '4. longer line', tweaks: twk },
-      { text: '5. last line', tweaks: twk },
+      { text: '* Turn up card for trump\n   A or X: no trump', tweaks: twk },
+      { text: '* Bid for exact number of tricks', tweaks: twk },
+      { text: '* Follow suit if able\n   else play any card', tweaks: twk },
+      { text: '* Trick is won by:\n   highest card of suit led (A, 2, .. 10, K)\n   or highest trump/archer, if trump\n   Gain a TrickBonus', tweaks: twk },
+      { text: '* Archers outrank trump, if trump', tweaks: twk },
+      { text: '* A outranks its K\n  (& Archers, if trump)', tweaks: twk },
+      { text: '* Can play TrickBonus(s)\n   to buff numeric cards', tweaks: twk },
+      { text: 'Score:\n  10 if make bid exactly\n  +1 per TrickBonus card retained', tweaks: twk },
     ] as {text: string, tweaks: TWEAKS}[]
+    let dy = safe - height / 2;
     rules.forEach(({ text, tweaks }, n: number) => {
-      tweaker.setTextTweaks(text, font, { dy: top + n * mlh, ...tweaks })
+      const cText = tweaker.setTextTweaks(text, font, { dy, ...tweaks })
+      dy = cText.y + mlh + 22;
     })
   }
 }
