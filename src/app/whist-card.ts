@@ -73,7 +73,7 @@ export class WhistCard extends Tile  {
 
   static ranks = ['A', '2', '3', '4', '5', '6', '7', '8', '9', '10', 'K'];
 
-  static archers = ['x', 'X'];
+  static archers = ['A', 'K'];
 
   // four suits: 800 x 1100; but some images off-center; correct that for tokens
   static cards: CARD[] = [
