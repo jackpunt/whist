@@ -336,12 +336,12 @@ export class RuleCard extends WhistCard {
     const twk = { align: 'left', dx: safe - width / 2, nlh: mlh+8 } as TWEAKS;
     const rules = [
       { text: 'Rules:', tweaks: { ...twk, align: 'center', dx: 0} },
-      { text: '* Turn up card for trump\n   A or X: no trump', tweaks: twk },
+      { text: '* Turn up card for trump\n   A or K: no trump', tweaks: twk },
       { text: '* Bid for exact number of tricks', tweaks: twk },
       { text: '* Follow suit if able\n   else play any card', tweaks: twk },
       { text: '* Trick is won by:\n   highest card of suit led (A, 2, .. 10, K)\n   or highest trump/archer, if trump\n   Gain a TrickBonus', tweaks: twk },
-      { text: '* Archers outrank trump, if trump', tweaks: twk },
-      { text: '* A outranks its K\n  (& Archers, if trump)', tweaks: twk },
+      { text: '* Archers are highest trumps, if trump', tweaks: twk },
+      { text: '* A outranks its K (& Archers, if trump)', tweaks: twk },
       { text: '* Can play TrickBonus(s)\n   to buff numeric cards', tweaks: twk },
       { text: 'Score:\n  10 if make bid exactly\n  +1 per TrickBonus card retained', tweaks: twk },
     ] as {text: string, tweaks: TWEAKS}[]

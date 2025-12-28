@@ -1,9 +1,8 @@
-import { AliasLoader, NamedContainer, RectShape, TileExporter as TileExporterLib, type CountClaz, type GridSpec, type PageSpec } from "@thegraid/easeljs-lib";
-import type { Bitmap } from "@thegraid/easeljs-module";
+import { TileExporter as TileExporterLib, type CountClaz, type GridSpec, type PageSpec } from "@thegraid/easeljs-lib";
 import { TP } from "@thegraid/hexlib";
 import { GtrCard } from "../../../gtr/src/app/gtr-card";
 import { SpecialDead } from "./special-dead";
-import { TuckboxMaker, type Geom, type TuckSpec } from "./tuckbox";
+import { TuckboxMaker } from "./tuckbox";
 import { LogoText, RuleCard, WhistBack, WhistCard } from "./whist-card";
 import { BidCounter, BonusBack, PointCounter, PointsBack, WhistToken } from "./whist-token";
 
@@ -100,7 +99,7 @@ export class TileExporter extends TileExporterLib {
   makeTuckbox(pageSpecs: PageSpec[]) {
     const spec = TuckboxMaker.poker_75, s = spec.safe ?? 25;
     const front = new WhistCard({ Aname: 'stars', color: 'blue', ranks: ['K'], y0: 0, }, 'K')
-    const back = new WhistCard({ Aname: 'arrows', color: 'yellow', ranks: ['X'], y0: 0, })
+    const back = new WhistCard({ Aname: 'arrows', color: 'yellow', ranks: ['A'], y0: 0, })
     const left = new LogoText(Math.min(spec.left.w, spec.front.h) - 2 * s);
     const right = new LogoText(Math.min(spec.right.w, spec.back.h) - 2 * s);
     const top  = new LogoText(spec.top.h - 2 * s)

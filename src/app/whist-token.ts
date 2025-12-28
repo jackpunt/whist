@@ -163,7 +163,10 @@ export class PointsBack extends WhistToken {
   override addImages(): void {} // disable
   // label on back, 4 arrow/carets
   addStrings(strings: string[]) {
-    const { x, y, width, height } = this.getBounds();
+    const xs = 60, ys = 90; // imperical offsets
+    const s = 25; // TODO: get from gridspec.safe?
+    let { x, y, width, height } = this.getBounds();
+    x += s; y += s; width -= 2 * s; height -= 2 * s; // shrink to safe area
     const backText = strings[0];
     const font = WhistCard.ptFont;
     const backFont = WhistCard.backFont;
@@ -171,16 +174,16 @@ export class PointsBack extends WhistToken {
     this.tweaker.setTextFrag(backText, font, { color: 'black', dx: .005 * width, rotation: -90, ...tweaks });
 
     this.tweaker.setFragWithGlyphs('^', backFont, { ...tweaks, dx: 0, dy: y })
-    this.tweaker.setFragWithGlyphs('\n\n0', backFont, { ...tweaks, dx: 0, dy: y })
+    this.tweaker.setFragWithGlyphs('0', backFont, { ...tweaks, dx: 0, dy: y + ys})
 
     this.tweaker.setFragWithGlyphs('v', backFont, { ...tweaks, dx: 0, dy: y + height })
-    this.tweaker.setFragWithGlyphs('20', backFont, { ...tweaks, dx: 0, dy: y + height - 90, baseline: 'bottom', rotation: 180 })
+    this.tweaker.setFragWithGlyphs('20', backFont, { ...tweaks, dx: 0, dy: y + height - ys, baseline: 'bottom', rotation: 180 })
 
     this.tweaker.setFragWithGlyphs('<', backFont, { ...tweaks, dx: x, dy: 0 })
-    this.tweaker.setFragWithGlyphs('10', backFont, { ...tweaks, dx: x + 60, dy: 0, align: 'center', baseline: 'middle', rotation: -90 })
+    this.tweaker.setFragWithGlyphs('10', backFont, { ...tweaks, dx: x + xs, dy: 0, align: 'center', baseline: 'middle', rotation: -90 })
 
     this.tweaker.setFragWithGlyphs('>', backFont, { ...tweaks, dx: x + width, dy: 0, })
-    this.tweaker.setFragWithGlyphs('30', backFont, { ...tweaks, dx: x + width - 60, dy: 0, align: 'center', baseline: 'middle', rotation: 90 })
+    this.tweaker.setFragWithGlyphs('30', backFont, { ...tweaks, dx: x + width - xs, dy: 0, align: 'center', baseline: 'middle', rotation: 90 })
   }
 }
 
